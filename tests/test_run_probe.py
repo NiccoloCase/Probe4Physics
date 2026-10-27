@@ -264,24 +264,6 @@ class RunProbeTests(unittest.TestCase):
             shuffled = sorted(int(resolved.labels[pos].item()) for pos in positions)
             self.assertEqual(shuffled, original, scene_id)
 
-    def test_structured_random_label_control_rejects_ssv2(self) -> None:
-        index = pd.DataFrame(
-            [
-                {"feature_index": 0, "split": "train", "label_idx": 0},
-                {"feature_index": 1, "split": "val", "label_idx": 1},
-            ]
-        )
-        probe_cfg = run_probe._probe_cfg(
-            {
-                "probe": {
-                    "name": "linear",
-                    "label_control": {"mode": "structured_random", "seed": 1},
-                }
-            }
-        )
-
-        with self.assertRaises(run_probe.ProbeConfigError):
-            run_probe._resolve_labels("ssv2", index, probe_cfg)
 
     def test_default_wandb_run_name_uses_backbone_label(self) -> None:
         config = {
@@ -359,11 +341,11 @@ class RunProbeTests(unittest.TestCase):
                 "manifest": {"signature": "sig", "stats": {"n_classes": 2}},
                 "index": pd.DataFrame(
                     [
-                        {"feature_index": 0, "split": "train", "label_idx": 0},
-                        {"feature_index": 1, "split": "train", "label_idx": 1},
-                        {"feature_index": 2, "split": "train", "label_idx": 0},
-                        {"feature_index": 3, "split": "val", "label_idx": 1},
-                        {"feature_index": 4, "split": "val", "label_idx": 0},
+                        {"feature_index": 0, "split": "train", "plausibility": 0},
+                        {"feature_index": 1, "split": "train", "plausibility": 1},
+                        {"feature_index": 2, "split": "train", "plausibility": 0},
+                        {"feature_index": 3, "split": "val", "plausibility": 1},
+                        {"feature_index": 4, "split": "val", "plausibility": 0},
                     ]
                 ),
                 "pooled": {"selected_layers": [8], "by_layer": {8: torch.randn(5, 4)}},
@@ -372,11 +354,11 @@ class RunProbeTests(unittest.TestCase):
             probe = _CapturingLinearProbe(input_dim=4, num_classes=2, device="cpu")
             fake_spec = SimpleNamespace(load_bundle=lambda cfg, view: bundle, report_splits=())
 
-            with mock.patch.dict(run_probe.DATASET_SPECS, {"ssv2": fake_spec}, clear=False):
+            with mock.patch.dict(run_probe.DATASET_SPECS, {"intphys2": fake_spec}, clear=False):
                 with mock.patch("training.run_probe._create_probe_instance", return_value=probe):
                     with mock.patch("training.run_probe.init_wandb_train_logger", return_value=None):
                         summary, _logger = run_probe._run_single_train(
-                            "ssv2",
+                            "intphys2",
                             config,
                             probe_cfg,
                             output_dir=Path(tmp) / "train",

@@ -12,7 +12,6 @@ import yaml
 from benchmarks.intphys2.data import load_intphys2_rows, normalize_intphys2_row
 from benchmarks.mvp.data import load_mvp_rows
 from benchmarks.mvp.selection import derive_sample_id, derive_video_ref
-from benchmarks.ssv2.data import load_ssv2_annotations
 from models.jepa_v1_adapter import resolve_relative_depth_layers as resolve_jepa_v1_relative_depth_layers
 from models.jepa_v2_adapter import resolve_relative_depth_layers as resolve_jepa_v2_relative_depth_layers
 from models.jepa_v2_1_adapter import resolve_relative_depth_layers as resolve_jepa_v2_1_relative_depth_layers
@@ -50,7 +49,6 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
     backbone_cfg = _load_yaml(CONFIGS_DIR / "backbones.yaml")
     mvp_cfg = _load_yaml(CONFIGS_DIR / "mvp.yaml")
     intphys2_cfg = _load_yaml(CONFIGS_DIR / "intphys2.yaml")
-    ssv2_cfg = _load_yaml(CONFIGS_DIR / "ssv2.yaml")
 
     backbones = [
         _check_backbone(name, backbone_cfg, synthetic_forward=synthetic_forward, device=device)
@@ -59,7 +57,6 @@ def run_health(config: dict[str, Any]) -> dict[str, Any]:
     datasets = [
         _check_mvp(mvp_cfg),
         _check_intphys2(intphys2_cfg),
-        _check_ssv2(ssv2_cfg),
     ]
 
     checks: list[dict[str, Any]] = []
@@ -120,7 +117,6 @@ def run_health_layers(config: dict[str, Any]) -> dict[str, Any]:
     backbone_cfg = _load_yaml(CONFIGS_DIR / "backbones.yaml")
     mvp_cfg = _load_yaml(CONFIGS_DIR / "mvp.yaml")
     intphys2_cfg = _load_yaml(CONFIGS_DIR / "intphys2.yaml")
-    ssv2_cfg = _load_yaml(CONFIGS_DIR / "ssv2.yaml")
 
     variants: list[dict[str, Any]] = []
     checks: list[dict[str, Any]] = []
@@ -165,7 +161,6 @@ def run_health_layers(config: dict[str, Any]) -> dict[str, Any]:
         variant_lookup,
         mvp_cfg,
         intphys2_cfg,
-        ssv2_cfg,
     )
     checks.extend(item["check"] for item in benchmark_layer_requests)
 
@@ -279,7 +274,7 @@ def _feature_dataset_specs(feature_cfg: dict[str, Any]) -> list[dict[str, Any]]:
             },
         }
 
-    ordered_names = [name for name in ("mvp", "intphys2", "ssv2") if name in raw_datasets]
+    ordered_names = [name for name in ("mvp", "intphys2") if name in raw_datasets]
     ordered_names.extend(sorted(str(name) for name in raw_datasets if str(name) not in ordered_names))
 
     specs: list[dict[str, Any]] = []
@@ -525,7 +520,6 @@ def _check_feature_index(
     required_columns = {
         "mvp": ["feature_index", "sample_id", "split", "video_path", "plausibility_label"],
         "intphys2": ["feature_index", "sample_id", "split", "video_path", "plausibility"],
-        "ssv2": ["feature_index", "sample_id", "split", "video_path", "label_idx"],
     }.get(dataset_name, ["feature_index", "sample_id", "split", "video_path"])
     missing_columns = [column for column in required_columns if column not in index_frame.columns]
     checks.append(_check_result("index_required_columns", not missing_columns, f"missing={missing_columns}"))
@@ -1222,13 +1216,11 @@ def _resolve_benchmark_layer_requests(
     variant_lookup: dict[tuple[str, str], dict[str, Any]],
     mvp_cfg: dict[str, Any],
     intphys2_cfg: dict[str, Any],
-    ssv2_cfg: dict[str, Any],
 ) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     benchmark_cfgs = {
         "mvp": mvp_cfg,
         "intphys2": intphys2_cfg,
-        "ssv2": ssv2_cfg,
     }
     for benchmark_name, benchmark_cfg in benchmark_cfgs.items():
         records.append(
@@ -1641,95 +1633,6 @@ def _check_intphys2(config: dict[str, Any]) -> dict[str, Any]:
     return _bundle("dataset", "intphys2", None, checks, stats=stats)
 
 
-def _check_ssv2(config: dict[str, Any]) -> dict[str, Any]:
-    checks: list[dict[str, Any]] = []
-    stats: dict[str, Any] = {}
-
-    train_file = _as_project_path(str(config.get("train_annotation_file", "")))
-    val_file = _as_project_path(str(config.get("val_annotation_file", "")))
-    labels_file = _as_project_path(str(config.get("labels_file", "")))
-    split_dir = _as_project_path(str((config.get("split", {}) or {}).get("dir", "data/splits/ssv2")))
-    videos_root = _as_project_path(str(config.get("videos_root", "")))
-
-    checks.append(_check_result("train_annotation_exists", train_file.exists(), str(train_file)))
-    checks.append(_check_result("val_annotation_exists", val_file.exists(), str(val_file)))
-    checks.append(_check_result("labels_exists", labels_file.exists(), str(labels_file)))
-
-    split_clips = split_dir / "split_clips.parquet"
-    split_manifest = split_dir / "manifest.json"
-    checks.append(_check_result("split_clips_exists", split_clips.exists(), str(split_clips)))
-    checks.append(_check_result("split_manifest_exists", split_manifest.exists(), str(split_manifest)))
-
-    if split_manifest.exists():
-        try:
-            manifest = json.loads(split_manifest.read_text(encoding="utf-8"))
-            stats["manifest_stats"] = manifest.get("stats", {})
-            checks.append(_check_result("manifest_readable", True, "Parsed manifest.json"))
-        except Exception as exc:
-            checks.append(_check_result("manifest_readable", False, f"Failed to parse manifest: {exc}"))
-    else:
-        checks.append(_check_result("manifest_readable", False, "Manifest file not found."))
-
-    if split_clips.exists():
-        try:
-            import pandas as pd
-
-            frame = pd.read_parquet(split_clips)
-            refs: list[str] = []
-            if "video_ref" in frame.columns:
-                refs = [str(item) for item in frame["video_ref"].tolist()]
-            elif "sample_id" in frame.columns:
-                refs = [f"{item}.webm" for item in frame["sample_id"].tolist()]
-
-            present = 0
-            missing = 0
-            missing_refs: list[str] = []
-            for ref in refs:
-                exists, candidate = _video_exists(ref, videos_root)
-                if exists:
-                    present += 1
-                else:
-                    missing += 1
-                    if len(missing_refs) < 20:
-                        missing_refs.append(candidate)
-            stats["video_stats"] = {
-                "required_samples": len(refs),
-                "present_videos": present,
-                "missing_videos": missing,
-                "missing_examples": missing_refs,
-            }
-            checks.append(_check_result("videos_downloaded", missing == 0, f"missing={missing}"))
-        except Exception as exc:
-            checks.append(_check_result("videos_downloaded", False, f"Video check failed: {exc}"))
-    elif train_file.exists() and val_file.exists():
-        try:
-            train_rows = load_ssv2_annotations(train_file)
-            val_rows = load_ssv2_annotations(val_file)
-            refs = [f"{row['id']}.webm" for row in train_rows + val_rows if "id" in row]
-            present = 0
-            missing = 0
-            missing_refs: list[str] = []
-            for ref in refs:
-                exists, candidate = _video_exists(ref, videos_root)
-                if exists:
-                    present += 1
-                else:
-                    missing += 1
-                    if len(missing_refs) < 20:
-                        missing_refs.append(candidate)
-            stats["video_stats"] = {
-                "required_samples": len(refs),
-                "present_videos": present,
-                "missing_videos": missing,
-                "missing_examples": missing_refs,
-            }
-            checks.append(_check_result("videos_downloaded", missing == 0, f"missing={missing}"))
-        except Exception as exc:
-            checks.append(_check_result("videos_downloaded", False, f"Video check failed: {exc}"))
-    else:
-        checks.append(_check_result("videos_downloaded", False, "Missing split_clips and annotations."))
-
-    return _bundle("dataset", "ssv2", None, checks, stats=stats)
 
 
 def _video_exists(video_ref: str, videos_root: Path) -> tuple[bool, str]:

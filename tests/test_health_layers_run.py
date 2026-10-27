@@ -60,11 +60,10 @@ class HealthLayersRunTests(unittest.TestCase):
         backbone_cfg = _backbone_cfg_fixture()
         mvp_cfg = _benchmark_cfg("jepa_v1", [])
         intphys2_cfg = _benchmark_cfg("jepa_v2_1", [12, 24, 38, 48])
-        ssv2_cfg = _benchmark_cfg("videomae", [8, 16, 24, 32])
 
         with mock.patch(
             "experiments.health.run._load_yaml",
-            side_effect=[backbone_cfg, mvp_cfg, intphys2_cfg, ssv2_cfg],
+            side_effect=[backbone_cfg, mvp_cfg, intphys2_cfg],
         ):
             report = run_health_layers({})
 
@@ -91,11 +90,10 @@ class HealthLayersRunTests(unittest.TestCase):
         backbone_cfg = _backbone_cfg_fixture()
         mvp_cfg = _benchmark_cfg("jepa_v1", [7])  # jepa_v1 default selection is [8, 16, 24, 32]
         intphys2_cfg = _benchmark_cfg("jepa_v2_1", [])
-        ssv2_cfg = _benchmark_cfg("videomae", [])
 
         with mock.patch(
             "experiments.health.run._load_yaml",
-            side_effect=[backbone_cfg, mvp_cfg, intphys2_cfg, ssv2_cfg],
+            side_effect=[backbone_cfg, mvp_cfg, intphys2_cfg],
         ):
             report = run_health_layers({"strict_exit": True})
 

@@ -32,9 +32,6 @@ from benchmarks.mvp.features import (
     MVPChunkedTokenStore,
     load_feature_cache_for_config as load_mvp_feature_cache,
 )
-from benchmarks.ssv2.data import SSV2_NUM_CLASSES
-from benchmarks.ssv2.eval import run_ssv2_eval
-from benchmarks.ssv2.features import load_feature_cache_for_config as load_ssv2_feature_cache
 from models.cache_metadata import resolve_backbone_cache_metadata, resolve_backbone_layer_label
 from probes import (
     LinearProbe,
@@ -309,18 +306,6 @@ DATASET_SPECS = {
         eval_prefix="intphys2_single_frame_probe_eval",
         objective_metric="voe_accuracy",
     ),
-    "ssv2": DatasetSpec(
-        name="ssv2",
-        load_bundle=lambda config, _feature_view: load_ssv2_feature_cache(config),
-        eval_runner=lambda config: run_ssv2_eval(config),
-        default_train_output_dir="artifacts/probes/ssv2",
-        default_eval_output_dir="artifacts/results/ssv2",
-        default_eval_split="val",
-        report_splits=(),
-        train_prefix="ssv2_probe",
-        eval_prefix="ssv2_probe_eval",
-        objective_metric="top1_accuracy",
-    ),
 }
 
 
@@ -390,12 +375,8 @@ def run_intphys2_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_eval("intphys2", config)
 
 
-def run_ssv2_train_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_train("ssv2", config)
 
 
-def run_ssv2_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_eval("ssv2", config)
 
 
 def run_mvp_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
@@ -406,8 +387,6 @@ def run_intphys2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_train_eval("intphys2", config)
 
 
-def run_ssv2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
-    return run_probe_train_eval("ssv2", config)
 
 
 def run_intphys2_displacement_train_probe(config: dict[str, Any]) -> dict[str, Any]:
@@ -1153,23 +1132,6 @@ def _write_prediction_payload_from_context(
                 split_frame["sample_id"].tolist(),
                 logits.argmax(dim=1).tolist(),
                 probs[:, 1].tolist(),
-            )
-        }
-    elif family == "ssv2":
-        if eval_loader is not None:
-            logits = probe.predict_logits_loader(eval_loader)
-        else:
-            logits = probe.predict_logits(x_eval, batch_size=probe_cfg["eval_batch_size"])
-        probs = torch.softmax(logits, dim=1)
-        pred_payload = {
-            str(sample_id): {
-                "pred_idx": int(pred),
-                "scores": scores,
-            }
-            for sample_id, pred, scores in zip(
-                split_frame["sample_id"].tolist(),
-                logits.argmax(dim=1).tolist(),
-                probs.tolist(),
             )
         }
     else:
@@ -2086,8 +2048,6 @@ def _validate_dataset_index(dataset: str, index: Any) -> None:
     if family == "intphys2":
         _require_fresh_intphys2_split_index(index)
         return
-    if family == "ssv2":
-        return
     raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
 
 
@@ -2101,8 +2061,6 @@ def _resolve_labels(
         real_labels = torch.tensor(index["plausibility_label"].tolist(), dtype=torch.long)
     elif family == "intphys2":
         real_labels = torch.tensor(index["plausibility"].tolist(), dtype=torch.long)
-    elif family == "ssv2":
-        real_labels = torch.tensor(index["label_idx"].tolist(), dtype=torch.long)
     else:
         raise ProbeConfigError(f"Unsupported dataset '{dataset}'.")
 
@@ -2234,8 +2192,6 @@ def _resolve_num_classes(
     manifest: dict[str, Any],
 ) -> int:
     family = _dataset_family(dataset)
-    if family == "ssv2":
-        return int(manifest.get("stats", {}).get("n_classes", SSV2_NUM_CLASSES))
     if family == "mvp":
         return max(int(labels.max().item()) + 1, 2)
     if family == "intphys2":
@@ -2252,13 +2208,6 @@ def _resolve_split_masks(
     train_mask = index["split"].astype(str) == train_split
     val_mask = index["split"].astype(str) == _MODEL_SELECTION_SPLIT
 
-    if _dataset_family(dataset) == "ssv2" and not train_mask.any():
-        available = sorted(index["split"].astype(str).unique().tolist())
-        raise ProbeConfigError(
-            f"No training samples found for split='{train_split}' in feature cache index. "
-            f"Available splits: {available}. "
-            "Ensure feature_cache.split_names includes a 'train' split."
-        )
     return train_mask, val_mask
 
 

@@ -56,13 +56,12 @@ class HealthRunTests(unittest.TestCase):
             },
         }
 
-        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
+        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}]):
             with mock.patch("experiments.health.run.get_registered_adapters", return_value=tuple(backbone_cfg)):
                 with mock.patch("experiments.health.run._check_mvp", return_value=_dataset_result("mvp")):
                     with mock.patch("experiments.health.run._check_intphys2", return_value=_dataset_result("intphys2")):
-                        with mock.patch("experiments.health.run._check_ssv2", return_value=_dataset_result("ssv2")):
-                            with mock.patch("experiments.health.run._run_backbone_probe_subprocess") as probe_mock:
-                                report = run_health({})
+                        with mock.patch("experiments.health.run._run_backbone_probe_subprocess") as probe_mock:
+                            report = run_health({})
 
         self.assertFalse(report["mode"]["synthetic_forward"])
         self.assertEqual(probe_mock.call_count, 0)
@@ -93,16 +92,15 @@ class HealthRunTests(unittest.TestCase):
             },
         }
 
-        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
+        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}]):
             with mock.patch("experiments.health.run.get_registered_adapters", return_value=tuple(backbone_cfg)):
                 with mock.patch("experiments.health.run._check_mvp", return_value=_dataset_result("mvp")):
                     with mock.patch("experiments.health.run._check_intphys2", return_value=_dataset_result("intphys2")):
-                        with mock.patch("experiments.health.run._check_ssv2", return_value=_dataset_result("ssv2")):
-                            with mock.patch(
-                                "experiments.health.run._run_backbone_probe_subprocess",
-                                return_value=(True, "ok"),
-                            ) as probe_mock:
-                                report = run_health({"synthetic_forward": True, "device": "cuda"})
+                        with mock.patch(
+                            "experiments.health.run._run_backbone_probe_subprocess",
+                            return_value=(True, "ok"),
+                        ) as probe_mock:
+                            report = run_health({"synthetic_forward": True, "device": "cuda"})
 
         self.assertTrue(report["mode"]["synthetic_forward"])
         self.assertEqual(report["mode"]["device"], "cuda")
@@ -121,12 +119,11 @@ class HealthRunTests(unittest.TestCase):
             "ltx_video": {"variants": {"ltxv_13b_0_9_8_distilled": {}}},
         }
 
-        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
+        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}]):
             with mock.patch("experiments.health.run.get_registered_adapters", return_value=tuple(backbone_cfg)):
                 with mock.patch("experiments.health.run._check_mvp", return_value=_failing_dataset_result("mvp")):
                     with mock.patch("experiments.health.run._check_intphys2", return_value=_dataset_result("intphys2")):
-                        with mock.patch("experiments.health.run._check_ssv2", return_value=_dataset_result("ssv2")):
-                            report = run_health({})
+                        report = run_health({})
 
         self.assertFalse(report["ok"])
         self.assertEqual(report["exit_code"], 0)
@@ -141,12 +138,11 @@ class HealthRunTests(unittest.TestCase):
             "ltx_video": {"variants": {"ltxv_13b_0_9_8_distilled": {}}},
         }
 
-        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}, {}]):
+        with mock.patch("experiments.health.run._load_yaml", side_effect=[backbone_cfg, {}, {}]):
             with mock.patch("experiments.health.run.get_registered_adapters", return_value=tuple(backbone_cfg)):
                 with mock.patch("experiments.health.run._check_mvp", return_value=_failing_dataset_result("mvp")):
                     with mock.patch("experiments.health.run._check_intphys2", return_value=_dataset_result("intphys2")):
-                        with mock.patch("experiments.health.run._check_ssv2", return_value=_dataset_result("ssv2")):
-                            report = run_health({"strict_exit": True})
+                        report = run_health({"strict_exit": True})
 
         self.assertFalse(report["ok"])
         self.assertEqual(report["exit_code"], 1)

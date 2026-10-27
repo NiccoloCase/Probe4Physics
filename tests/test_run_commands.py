@@ -28,7 +28,6 @@ class RunCommandTests(unittest.TestCase):
             "eval.probe.intphys2.single_frame",
             "extract.intphys2.displacement",
             "eval.probe.intphys2.displacement",
-            "train_eval.probe.ssv2",
             "health",
             "health.layers",
             "exp.list",

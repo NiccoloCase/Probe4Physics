@@ -22,9 +22,6 @@ from benchmarks.mvp.features import has_valid_feature_cache
 from benchmarks.mvp.features_displacement import has_valid_displacement_cache as has_valid_mvp_displacement_cache
 from benchmarks.mvp.features_single_frame import has_valid_single_frame_cache as has_valid_mvp_single_frame_cache
 from benchmarks.mvp.init import run_mvp_init
-from benchmarks.ssv2.eval import run_ssv2_eval
-from benchmarks.ssv2.features import has_valid_feature_cache as has_valid_ssv2_cache
-from benchmarks.ssv2.init import run_ssv2_init
 from experiments.health import run_health, run_health_features, run_health_layers
 from experiments.registry import get_experiment, list_experiments
 from training.run_probe import (
@@ -38,9 +35,6 @@ from training.run_probe import (
     run_mvp_single_frame_eval_probe,
     run_mvp_train_eval_probe,
     run_mvp_train_probe,
-    run_ssv2_eval_probe,
-    run_ssv2_train_eval_probe,
-    run_ssv2_train_probe,
 )
 from training.baseline_postprocess import run_baseline_label_backfill
 from training.intphys2_displacement_extract import run_intphys2_displacement_extract
@@ -50,7 +44,6 @@ from training.intphys2_single_frame_extract import run_intphys2_single_frame_ext
 from training.mvp_displacement_extract import run_mvp_displacement_extract
 from training.mvp_extract import run_mvp_extract
 from training.mvp_single_frame_extract import run_mvp_single_frame_extract
-from training.ssv2_extract import run_ssv2_extract
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 DEFAULT_COMMAND = "eval.mvp"
@@ -70,7 +63,6 @@ ALIASES = {
     "mvp": "eval.mvp",
     "eval": "eval.mvp",
     "intphys2": "eval.intphys2",
-    "ssv2": "eval.ssv2",
 }
 
 
@@ -147,7 +139,6 @@ def _run_exp(config: dict[str, Any]) -> dict[str, Any]:
             or (step == "extract.intphys2" and has_valid_intphys2_cache(merged_config))
             or (step == "extract.intphys2.displacement" and has_valid_intphys2_displacement_cache(merged_config))
             or (step == "extract.intphys2.single_frame" and has_valid_intphys2_single_frame_cache(merged_config))
-            or (step == "extract.ssv2" and has_valid_ssv2_cache(merged_config))
         )
         if _is_extract_cached and not force_reextract:
             step_results.append(
@@ -315,37 +306,6 @@ COMMANDS = {
         handler=run_intphys2_single_frame_eval_probe,
         description="Evaluate an existing probe on IntPhys2 single-frame baseline (original + all_true + all_false).",
     ),
-    # --- SSv2 ---
-    "init.ssv2": CommandSpec(
-        config_name="ssv2",
-        handler=run_ssv2_init,
-        description="Validate SSv2 annotations, subset by class, and write split artifacts.",
-    ),
-    "eval.ssv2": CommandSpec(
-        config_name="ssv2",
-        handler=run_ssv2_eval,
-        description="Run SSv2 evaluation pipeline (Top-1 / Top-5 accuracy).",
-    ),
-    "extract.ssv2": CommandSpec(
-        config_name="ssv2",
-        handler=run_ssv2_extract,
-        description="Extract and cache frozen backbone features for SSv2.",
-    ),
-    "train.probe.ssv2": CommandSpec(
-        config_name="ssv2",
-        handler=run_ssv2_train_probe,
-        description="Train the selected probe from cached SSv2 features.",
-    ),
-    "train_eval.probe.ssv2": CommandSpec(
-        config_name="ssv2",
-        handler=run_ssv2_train_eval_probe,
-        description="Train and then evaluate the selected probe across one or more SSv2 layers.",
-    ),
-    "eval.probe.ssv2": CommandSpec(
-        config_name="ssv2",
-        handler=run_ssv2_eval_probe,
-        description="Evaluate the selected probe on SSv2 with Top-1 / Top-5 scoring.",
-    ),
     # --- Health ---
     "health": CommandSpec(
         config_name="health",
@@ -433,12 +393,6 @@ def _print_help() -> None:
         "  python run.py extract.intphys2.single_frame",
         "  python run.py eval.probe.intphys2.single_frame",
         "",
-        "SSv2 commands:",
-        "  python run.py init.ssv2",
-        "  python run.py extract.ssv2",
-        "  python run.py train.probe.ssv2",
-        "  python run.py train_eval.probe.ssv2",
-        "  python run.py eval.probe.ssv2",
         "",
         "Health command:",
         "  python run.py health",
@@ -464,8 +418,6 @@ def _print_help() -> None:
         "  python run.py exp.run name=intphys2.ltx_video.displacement",
         "  python run.py exp.run name=intphys2.jepa_v1.single_frame",
         "  python run.py exp.run name=intphys2.ltx_video.single_frame",
-        "  python run.py exp.run name=ssv2.jepa_v1.probe",
-        "  python run.py exp.run name=ssv2.ltx_video.probe",
         "",
         "Commands:",
     ]

@@ -101,25 +101,6 @@ _EXPERIMENTS: dict[str, ExperimentSpec] = {
             }
         },
     ),
-    "ssv2.jepa_v1.probe": ExperimentSpec(
-        name="ssv2.jepa_v1.probe",
-        description="SSv2 frozen-feature probe recipe with JEPA v1 (control task).",
-        pipeline=("extract.ssv2", "train.probe.ssv2", "eval.probe.ssv2"),
-        config_overrides={},
-    ),
-    "ssv2.ltx_video.probe": ExperimentSpec(
-        name="ssv2.ltx_video.probe",
-        description="SSv2 frozen-feature probe recipe with LTX-Video diffusion transformer features.",
-        pipeline=("extract.ssv2", "train.probe.ssv2", "eval.probe.ssv2"),
-        config_overrides={
-            "backbone": {
-                "name": "ltx_video",
-                "kwargs": {
-                    "device": "cuda",
-                },
-            }
-        },
-    ),
 }
 
 
