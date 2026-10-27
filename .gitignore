@@ -19,3 +19,9 @@ CLAUDE.md
 
 
 /wandb
+
+# Runtime and notebook outputs
+/logs/
+*.out
+*.err
+.ipynb_checkpoints/
