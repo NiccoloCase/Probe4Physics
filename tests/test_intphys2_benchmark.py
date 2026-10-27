@@ -530,7 +530,6 @@ class RunCommandIntPhys2Tests(unittest.TestCase):
             "extract.intphys2",
             "train.probe.intphys2",
             "eval.probe.intphys2",
-            "backfill.intphys2.roc_auc",
         }
         self.assertTrue(expected.issubset(set(run.COMMANDS)))
 

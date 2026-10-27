@@ -36,10 +36,8 @@ from training.run_probe import (
     run_mvp_train_eval_probe,
     run_mvp_train_probe,
 )
-from training.baseline_postprocess import run_baseline_label_backfill
 from training.intphys2_displacement_extract import run_intphys2_displacement_extract
 from training.intphys2_extract import run_intphys2_extract
-from training.intphys2_postprocess import run_intphys2_backfill_roc_auc
 from training.intphys2_single_frame_extract import run_intphys2_single_frame_extract
 from training.mvp_displacement_extract import run_mvp_displacement_extract
 from training.mvp_extract import run_mvp_extract
@@ -269,16 +267,6 @@ COMMANDS = {
         handler=run_intphys2_train_eval_probe,
         description="Train and then evaluate the selected probe across one or more IntPhys2 layers.",
     ),
-    "backfill.intphys2.roc_auc": CommandSpec(
-        config_name="intphys2",
-        handler=run_intphys2_backfill_roc_auc,
-        description="Backfill ROC AUC into saved IntPhys2 evaluation artifacts and summary CSVs.",
-    ),
-    "backfill.baseline_labels": CommandSpec(
-        config_name="mvp",
-        handler=run_baseline_label_backfill,
-        description="Backfill original/all_true/all_false baseline metrics and write baseline CSVs.",
-    ),
     "eval.probe.intphys2": CommandSpec(
         config_name="intphys2",
         handler=run_intphys2_eval_probe,
@@ -355,76 +343,13 @@ def _compose_config(config_name: str, overrides: list[str]) -> Any:
 
 
 def _print_help() -> None:
-    lines = [
-        "Probe4Physics command runner",
-        "",
-        "Usage:",
-        "  python run.py                          # default: eval.mvp",
-        "  python run.py <command> [hydra_overrides]",
-        "",
-        "MVP commands:",
-        "  python run.py init.mvp",
-        "  python run.py extract.mvp",
-        "  python run.py train.probe.mvp",
-        "  python run.py train_eval.probe.mvp",
-        "  python run.py eval.probe.mvp",
-        "",
-        "MVP displacement baseline commands:",
-        "  python run.py extract.mvp.displacement",
-        "  python run.py eval.probe.mvp.displacement",
-        "",
-        "MVP single-frame baseline commands:",
-        "  python run.py extract.mvp.single_frame",
-        "  python run.py eval.probe.mvp.single_frame",
-        "",
-        "IntPhys2 commands:",
-        "  python run.py download.intphys2",
-        "  python run.py init.intphys2",
-        "  python run.py extract.intphys2",
-        "  python run.py train.probe.intphys2",
-        "  python run.py train_eval.probe.intphys2",
-        "  python run.py eval.probe.intphys2",
-        "",
-        "IntPhys2 displacement baseline commands:",
-        "  python run.py extract.intphys2.displacement",
-        "  python run.py eval.probe.intphys2.displacement",
-        "",
-        "IntPhys2 single-frame baseline commands:",
-        "  python run.py extract.intphys2.single_frame",
-        "  python run.py eval.probe.intphys2.single_frame",
-        "",
-        "",
-        "Health command:",
-        "  python run.py health",
-        "  python run.py health.layers",
-        "  python run.py health.features",
-        "  python run.py health synthetic_forward=true",
-        "  python run.py health strict_exit=true",
-        "  python run.py health.layers strict_exit=true",
-        "  python run.py health.features strict_exit=true",
-        "",
-        "Postprocess commands:",
-        "  python run.py backfill.baseline_labels",
-        "  python run.py backfill.baseline_labels +baseline_backfill.force=true",
-        "  python run.py backfill.intphys2.roc_auc",
-        "",
-        "Experiment recipes:",
-        "  python run.py exp.list",
-        "  python run.py exp.run name=mvp.jepa_v1.probe",
-        "  python run.py exp.run name=mvp.ltx_video.probe",
-        "  python run.py exp.run name=intphys2.jepa_v1.probe",
-        "  python run.py exp.run name=intphys2.ltx_video.probe",
-        "  python run.py exp.run name=intphys2.jepa_v1.displacement",
-        "  python run.py exp.run name=intphys2.ltx_video.displacement",
-        "  python run.py exp.run name=intphys2.jepa_v1.single_frame",
-        "  python run.py exp.run name=intphys2.ltx_video.single_frame",
-        "",
-        "Commands:",
-    ]
-    for name, spec in sorted(COMMANDS.items()):
-        lines.append(f"  {name:<18} {spec.description}")
-
-    print("\n".join(lines))
+    print("Probe4Physics: official paper experiment runner")
+    print("\nUsage: python run.py <command> [hydra_overrides]")
+    print(f"Default command: {DEFAULT_COMMAND}\n")
+    for name, spec in COMMANDS.items():
+        print(f"  {name:<36} {spec.description}")
+    print("\nReproduction guide: docs/reproduction.md")
+    print("Cluster instructions: docs/cluster.md")
 
 
 if __name__ == "__main__":
