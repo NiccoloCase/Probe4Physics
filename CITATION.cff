@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the accompanying paper below."
+title: "Probe4Physics"
+type: software
+authors:
+  - family-names: Punzo
+    given-names: Samuele
+  - family-names: Caselli
+    given-names: Niccolò
+  - family-names: Pantelidis
+    given-names: Ippokratis
+  - family-names: Massafra
+    given-names: Francesco
+  - family-names: Lo Sardo
+    given-names: Salvatore
+  - family-names: Salehi
+    given-names: Mohammadreza
+preferred-citation:
+  type: conference-paper
+  title: "How Do Video Foundation Models Encode Intuitive Physics? Probing Across Pretraining Paradigms"
+  authors:
+    - family-names: Punzo
+      given-names: Samuele
+    - family-names: Caselli
+      given-names: Niccolò
+    - family-names: Pantelidis
+      given-names: Ippokratis
+    - family-names: Massafra
+      given-names: Francesco
+    - family-names: Lo Sardo
+      given-names: Salvatore
+    - family-names: Salehi
+      given-names: Mohammadreza
+  year: 2026
+  month: 6
+  date-published: '2026-06-08'
+  collection-title: "NeurIPS 2026 Workshop on World Models in Physical AI"

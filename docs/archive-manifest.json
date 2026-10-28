@@ -13,6 +13,36 @@
       "sha256": "ed032439b38c32514820bff8fcccb9bc9b6d93ec24dca9f08f821cf559dacf78"
     },
     {
+      "path": "benchmarks/ssv2/__init__.py",
+      "size": 819,
+      "sha256": "26be642d65cd7b4bc2bcee575a498776b483de858c00265db8c646668d73c894"
+    },
+    {
+      "path": "benchmarks/ssv2/core.py",
+      "size": 3420,
+      "sha256": "7c1da2aab2b451ffc629195778d7bbaef3f749291fb9b54c222c2c8fb24fb64e"
+    },
+    {
+      "path": "benchmarks/ssv2/data.py",
+      "size": 1866,
+      "sha256": "577bcf401cc0756ed1f3e784e6e9771161093cf73ddd7bbad548c6613bc3d843"
+    },
+    {
+      "path": "benchmarks/ssv2/eval.py",
+      "size": 12077,
+      "sha256": "ee55954b0b11dd1f49e1fbad7e2a4474495e6356df126941ada12a4cd63e5f8a"
+    },
+    {
+      "path": "benchmarks/ssv2/features.py",
+      "size": 23359,
+      "sha256": "fab61734c4fddfdeea3e6afd83cfe12fdec500f129f176f085c5ee3239775058"
+    },
+    {
+      "path": "benchmarks/ssv2/init.py",
+      "size": 9913,
+      "sha256": "0d69095fe939a469bc7d9a362df198e50854fe34bf97b42d69260d0774541a99"
+    },
+    {
       "path": "checkpoints_init25006187.err",
       "size": 86349,
       "sha256": "cc165cecfbe4faa75b71e60040d0df514c10374a25a154830e79040ae832e891"
@@ -41,6 +71,11 @@
       "path": "checkpoints_same_l_init_25383330.out",
       "size": 1057,
       "sha256": "240933c208a1e6b0f5330ba814e9c849ca956074f1ab20e184ae863c97d35c60"
+    },
+    {
+      "path": "configs/ssv2.yaml",
+      "size": 3658,
+      "sha256": "68d99b49aa06cecd725e2807093d8614336903e3a9a769d17307d1bd39a4cff6"
     },
     {
       "path": "docs/EXPERIMENT_GUIDE.md",
@@ -586,6 +621,111 @@
       "path": "jobs/train/mvp/mlp/output/training/mvp/mlp/mvp_videomae_v2_mlp_layers_22594139.out",
       "size": 103993,
       "sha256": "5f393f9dfafcdc90aa2a75a23ece07f0a280c81b58790eb30b6ceeca2fa26116"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/jepa_v1.sh",
+      "size": 1862,
+      "sha256": "9de0a0c741b735b5bfe2d3be582df6809ad4bbbec90639507338eae0ae7eb9b7"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/jepa_v2.sh",
+      "size": 1878,
+      "sha256": "d31e202ef49d15190b84123e7ad94f02f6337203fa186a7ffc3efb2c68f8ea17"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/jepa_v2_1.sh",
+      "size": 1892,
+      "sha256": "85d98691981d7c1aac1a964a5aaa3c5b2cfe15d63887ffccace2293b1323c2ed"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/ltx_video.sh",
+      "size": 1957,
+      "sha256": "da7c39407a0e84e7e7b95e5bf057d791fb1dbf07d768948696ab563b02e3e0c8"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/run_train.sh",
+      "size": 5139,
+      "sha256": "7e797e251ea33854e0490b9e4f0f63ce8f361fbac6bdac905494f671b37cd686"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/videomae.sh",
+      "size": 1868,
+      "sha256": "32a9f5fd006677ae3288437aec9326ef9aeaa82149487b357f8e8de768b3b6cb"
+    },
+    {
+      "path": "jobs/train/ssv2/linear/videomae_v2.sh",
+      "size": 1891,
+      "sha256": "2717b3a113f26ef26dfda1c492947b4cd5e870ca610d48f6c51aacbe470a22f8"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/jepa_v1.sh",
+      "size": 1858,
+      "sha256": "62c4db2bcb958dc6f9ff9fd449401cc51ef6f0871ebf8bbe049d04594c36e2e9"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/jepa_v2.sh",
+      "size": 1856,
+      "sha256": "a736a7127d8f14590c2a31faa4b8c256c4c873de702d9fc3cc8736fcf123c957"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/jepa_v2_1.sh",
+      "size": 1870,
+      "sha256": "e90b0bfcd6d6c9415ec424b3f3f61157322d4c3f0461b82025b60bb61f9b090e"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/ltx_video.sh",
+      "size": 1935,
+      "sha256": "a36c8f54af2b5b3be4dc040f11cd22c152fa336c2e2345969453f5e230270778"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/run_train.sh",
+      "size": 5139,
+      "sha256": "7e797e251ea33854e0490b9e4f0f63ce8f361fbac6bdac905494f671b37cd686"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/videomae.sh",
+      "size": 1869,
+      "sha256": "a3da3e0d751d33cb7e2edec972ab6f0fde8d96a028ffa4a5ad871adc1729ecf1"
+    },
+    {
+      "path": "jobs/train/ssv2/mlp/videomae_v2.sh",
+      "size": 1892,
+      "sha256": "7668bcfb11f3c1442cd997ed2af78f487cc3b80a50daed21b2d0dd7ad43175eb"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/jepa_v1.sh",
+      "size": 2017,
+      "sha256": "9157add07fab59ba9b669eb2a7fe796431c8bbb7f67a953c00088cf8d183d8d2"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/jepa_v2.sh",
+      "size": 2016,
+      "sha256": "9b070004f6e187e1bd8f6a4b9c5bdb5a3586690cbf2b1139d3af0f8f3c78537f"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/jepa_v2_1.sh",
+      "size": 2030,
+      "sha256": "ad228741da63a5ab4a90c29d47b391d032ea2ea26d0522a28c0b815f0407f677"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/ltx_video.sh",
+      "size": 2095,
+      "sha256": "e6d7b7a3f483fc8853c058c396a10d753b32e0ddda3eddc131a8f8ef62056429"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/run_train.sh",
+      "size": 5139,
+      "sha256": "7e797e251ea33854e0490b9e4f0f63ce8f361fbac6bdac905494f671b37cd686"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/videomae.sh",
+      "size": 2030,
+      "sha256": "4ed328d1456a1ca273dbaa30a362a9655b54cc78b5a3c18d29ea14deb779dc24"
+    },
+    {
+      "path": "jobs/train/ssv2/temporal_attn/videomae_v2.sh",
+      "size": 2052,
+      "sha256": "f3e4f742e87795be0806909be791a2553cee77b65cce90f5a3d377cd0289cf38"
     },
     {
       "path": "layers_health_cpu_24456858.err",
@@ -1211,6 +1351,16 @@
       "path": "notebooks/large_ablation_split_by_probe.png",
       "size": 383737,
       "sha256": "1caa390d725c058b68ea4a61b54e613c218308cc86d647333986db554eec5155"
+    },
+    {
+      "path": "tests/test_ssv2_benchmark.py",
+      "size": 26615,
+      "sha256": "b446227988a69144a2966411035d7b0cbcdddfe16cb8f140af3caa1009217daf"
+    },
+    {
+      "path": "training/ssv2_extract.py",
+      "size": 238,
+      "sha256": "236536b731a2fcf5721dbc96d05add752319f5e7a6e67e464e88e6861dfb0f24"
     }
   ]
 }

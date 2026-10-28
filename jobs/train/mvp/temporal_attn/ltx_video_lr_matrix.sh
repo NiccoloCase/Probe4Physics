@@ -9,7 +9,7 @@
 #   layers = 1, 2, ..., 40
 #   lrs    = 5e-4, 1e-4, 5e-5, 1e-5
 #
-# LTX uses slot ids 1..40 here, following docs/ltx_video_slot_map.md (noise-major, depth-minor).
+# LTX uses slot ids 1..40 here, following docs/experiments.md (noise-major, depth-minor).
 # Layout:
 #   artifacts/probes/mvp/${GROUP_SUBDIR}/layer_<layer>/lr_<tag>/
 #

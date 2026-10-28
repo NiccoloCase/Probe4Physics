@@ -10,7 +10,8 @@ the repository/submodule state, the original local V-JEPA patch, and baseline
 validation logs. Upstream submodule contents remain recoverable at their
 recorded Git commits.
 
-Historical runtime logs, generated notebook images, drafts, and planning notes
+Historical runtime logs, generated notebook images, drafts, planning notes,
+and removed first-party SSv2 components
 have been removed from the release checkout only after checksum verification.
 [The removal inventory](archive-manifest.json) records their original paths,
 sizes, and hashes. No result spreadsheets or CSV inputs were removed.

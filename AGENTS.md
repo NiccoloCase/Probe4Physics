@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-`run.py` is the main launcher; keep new top-level workflows reachable from it. Core benchmark logic lives in `benchmarks/` (`mvp`, `intphys2`), frozen backbone adapters in `models/`, probe implementations in `probes/`, and extraction/train orchestration in `training/` with `training/run_probe.py` as the probe entrypoint. Shared defaults belong in `configs/*.yaml`; `experiments/` holds recipe-style command bundles. Cluster wrappers stay under `jobs/extract/`, `jobs/train/`, and `jobs/init/`. Tests live in `tests/`, and runtime outputs should stay in `artifacts/`, `logs/`, `output/`, or scratch storage, not in tracked source trees.
+`run.py` is the main launcher; keep new top-level workflows reachable from it. Core benchmark logic lives in `benchmarks/` (`mvp`, `intphys2`), frozen backbone adapters in `models/`, probe implementations in `probes/`, and extraction/train orchestration in `training/` with `training/run_probe.py` as the probe entrypoint. Shared defaults belong in `configs/*.yaml`; `experiments/` holds recipe-style command bundles. Cluster wrappers stay under `jobs/extract/`, `jobs/train/`, and `jobs/init/`. Tests live in `tests/`, and runtime outputs should stay in ignored `artifacts/`, `logs/`, `output/`, or scratch storage. Versioned `results/` contains immutable research inputs. Run notebooks through `scripts/reproduce_notebooks.py` to preserve those inputs.
 
 ## Build, Test, and Development Commands
 Create the environment with `conda env create -f environment.yml` and activate `probe4physics`. Use `python run.py help` to inspect commands and `python run.py exp.list` to list experiment recipes. Common local checks:
@@ -23,3 +23,6 @@ Tests use the standard `unittest` runner. Name new files `tests/test_<area>.py` 
 
 ## Commit & Pull Request Guidelines
 Recent history uses short, direct subjects such as `updated jobs` or `csv generation for each run`. Keep commit titles imperative and specific to the touched area, for example `add MVP probe cache validation`. PRs should state the affected dataset/backbone/probe path, list the exact commands run, and note any artifact or log paths used for verification. Do not commit datasets, checkpoints, feature caches, `wandb/`, or changes inside `third_party/` unless the task explicitly requires it.
+
+## Paper release boundaries
+Preserve scientific behavior and artifact formats during release cleanup. Only MVP and IntPhys2 are supported. Maintenance backfills live in `scripts/maintenance.py`, outside the public runner. See `docs/development.md` and `docs/reproduction.md`. Do not add a license or claim complete paper reproduction without verified evidence.

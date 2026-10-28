@@ -1,322 +1,223 @@
 # Probe4Physics
 
-This repository provides a benchmark-centric pipeline for probing frozen video backbones on intuitive physics and action recognition benchmarks.
+Official code accompanying **How Do Video Foundation Models Encode Intuitive
+Physics? Probing Across Pretraining Paradigms**.
 
-Current v1 scope:
-- deterministic split initialization for MVP, IntPhys2, and SSv2
-- frozen feature extraction
-- probe training and evaluation
-- experiment recipes through `run.py`
+Samuele Punzo, Niccolò Caselli, Ippokratis Pantelidis, Francesco Massafra,
+Salvatore Lo Sardo, and Mohammadreza Salehi · University of Amsterdam
 
-`run.py` remains the project-level launcher. Probe train/eval orchestration now
-lives in `training/run_probe.py` and is invoked through `run.py`.
+**NeurIPS 2026 Workshop on World Models in Physical AI** · Publication date:
+June 8, 2026
 
-## Project Layout
-- `benchmarks/`: benchmark logic (MVP, IntPhys2, SSv2 — loading/scoring/splitting)
-- `models/`: frozen backbone adapters (`jepa_v1`, `jepa_v2`, `jepa_v2_1`, `videomae`, `videomae_v2`, `ltx_video`)
-- `probes/`: probe contracts and implementations (`linear`, `mlp`, `temporal_attn`)
-- `training/`: feature extraction + probe train/eval orchestration
-- `experiments/`: experiment registry recipes
-- `configs/mvp.yaml`: MVP runtime config
-- `configs/intphys2.yaml`: IntPhys2 runtime config
-- `configs/ssv2.yaml`: SSv2 runtime config
+## Overview
 
-## Environment Setup
-```bash
-conda env create -f environment.yml
-conda activate probe4physics
-# if environment already exists:
-conda env update -n probe4physics -f environment.yml --prune
-```
+Probe4Physics studies the accessibility of physical-plausibility information in
+frozen video foundation model representations. It provides a shared pipeline for
+dataset preparation, feature extraction, probe training, and evaluation across
+predictive joint-embedding, masked-reconstruction, and video-diffusion models.
+Separate probes operate on intermediate representations, allowing comparisons
+across network depth, backbone variants, and readout capacity without updating
+the pretrained backbone.
 
-## Submodules and Checkpoint
-Initialize submodules (MVP official code + JEPA adapter dependencies):
+| Component | Supported scope |
+| --- | --- |
+| Benchmarks | Minimal Video Pairs (MVP), IntPhys2 |
+| Backbones | V-JEPA, V-JEPA 2, V-JEPA 2.1, VideoMAE, VideoMAE-v2, LTX-Video |
+| Probes | Linear, MLP, temporal attentive |
+| Primary metrics | MVP pair consistency; IntPhys2 violation-of-expectation (VOE) accuracy |
+| Controls | Temporal displacement, repeated single frame, structured random labels |
+
+MVP is adapted to a video-only binary plausibility task. IntPhys2 uses supervised
+scene-level train/validation/test partitions. Scores therefore belong to this
+probing protocol and should not be interpreted as directly comparable to the
+original benchmarks' published evaluations. Probe performance measures
+decodability; it does not establish that a backbone actively uses the recovered
+information for physical reasoning.
+
+## Installation
+
+Run commands from the repository root. Initialize the recorded upstream versions:
+
 ```bash
 git submodule update --init --recursive
-git -C third_party/jepa_v1 checkout 51c59d518fc63c08464af6de585f78ac0c7ed4d5
+conda env create -f environment.yml
+conda activate probe4physics
+python run.py help
+python run.py health.layers strict_exit=true
 ```
 
-Download an official V-JEPA v1 checkpoint from:
-- https://github.com/facebookresearch/jepa
-
-Use it via config override:
-- `backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar`
-
-## End-to-End Pipeline
-Run from repository root:
+Python 3.11 is the environment target. The standard environment supports CPU
+probe training and result analysis. For CUDA workloads, use the separate GPU
+environment, which specifies PyTorch 2.6.0 and CUDA 12.4 wheels:
 
 ```bash
-python run.py init.mvp
-python run.py extract.mvp backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train_eval.probe.mvp
-# or run the steps separately:
-# python run.py train.probe.mvp
-# python run.py eval.probe.mvp
+conda env create -f environment-gpu.yml
+conda activate probe4physics-gpu
 ```
 
-### Stage 1: `init.mvp`
-Builds deterministic train/val/test splits and selection artifacts.
+Choose an environment compatible with the execution host. GPU feature extraction
+and token-level attentive training require substantially more memory than pooled
+linear or MLP probing. The environment definitions are dependency specifications,
+not exact historical locks. See [validation](docs/validation.md) for the versions
+actually checked during release preparation and [cluster instructions](docs/cluster.md)
+for the existing Snellius wrappers.
 
-Main outputs in `split.dir`:
-- `split_pairs.parquet`
-- `manifest.json`
-- `selection_kept.csv`
-- `selection_dropped.csv`
-- `selection_report.json`
+## Data and checkpoints
 
-### Stage 2: `extract.mvp`
-Runs frozen backbone forward pass and writes deterministic feature cache.
-
-Main outputs in `feature_cache.dir/<backbone>/<split_key>/<signature>/`:
-- `index.parquet`
-- `features_pooled.pt`
-- `features_tokens.pt`
-- `manifest.json`
-
-If videos are missing or `videos_root` is invalid, extraction writes warnings to:
-- `feature_cache.dir/extract_warnings.log`
-
-### Stage 3: `train.probe.mvp`
-Trains the configured probe from cached features (no backbone forward).
-
-Main outputs in `probe.output_dir/...`:
-- `probe_best.pt`
-- `probe_last.pt`
-- `train_summary.json`
-
-### Stage 4: `eval.probe.mvp`
-Loads the selected probe checkpoint, verifies feature signature, writes predictions, and runs official MVP scoring.
-
-Main outputs in `probe.eval_output_dir/...`:
-- `probe_predictions.json`
-- `probe_eval_summary.json`
-- official MVP eval artifacts (`metrics.json`, `predictions.csv`, `summary.md`, etc.)
-
-## IntPhys2 Pipeline
-IntPhys2 is a video benchmark for intuitive physics understanding (4 principles: permanence, immutability, continuity, solidity). Evaluation uses Violation-of-Expectation (VOE): a scene is correctly recognised only if all possible clips score higher than all impossible clips.
-
-The dataset is downloaded directly from HuggingFace (`facebook/IntPhys2`, CC BY-NC 4.0).
+Prepare MVP videos using the upstream benchmark's setup instructions. The
+`init.mvp` command can obtain annotations, applies the existing binary
+plausibility selection, and creates grouped splits; it does not download the
+complete video collection. IntPhys2 has a dedicated downloader:
 
 ```bash
 python run.py download.intphys2
 python run.py init.intphys2
-python run.py extract.intphys2 backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train_eval.probe.intphys2
-# or run the steps separately:
-# python run.py train.probe.intphys2
-# python run.py eval.probe.intphys2
+python run.py init.mvp
 ```
 
-### Stage 0: `download.intphys2`
-Downloads the Debug and Main splits from HuggingFace and writes a normalised metadata CSV.
+Default video roots are `data/videos/mvp` and `data/videos/intphys2`. Supply
+`videos_root=/absolute/path` when using an existing collection. Feature caches
+normally live under `artifacts/features/<dataset>`; override `feature_cache.dir`
+when necessary. Environment variables provide equivalent defaults, documented
+in [data preparation](docs/data.md).
 
-Main outputs:
-- `data/videos/intphys2/` — video files organised by HF split (`Debug/Videos/`, `Main/Videos/`)
-- `data/annotations/intphys2_metadata.csv` — normalised metadata (video_path, scene_id, condition, plausibility, split)
+Backbone variants, input sizes, local checkpoint filenames, and Hugging Face
+identifiers are defined in [configs/backbones.yaml](configs/backbones.yaml).
+JEPA checkpoints must be obtained from their upstream releases or the existing
+checkpoint setup jobs. VideoMAE and LTX adapters resolve the configured remote
+models when extraction is run. Initial model access requires network availability
+and compliance with each model's terms. Explicit checkpoints can be supplied
+with `+backbone.kwargs.checkpoint_path=/absolute/path` where supported.
 
-Requires `pip install huggingface_hub`. To download only specific splits:
+Raw datasets, pretrained weights, feature caches, and trained probe checkpoints
+are not bundled in this checkout.
+
+## Reproducing the paper
+
+### Regenerate analyses from saved results
+
+The versioned `results/` directory contains measurement workbooks, configuration
+records, and seed summaries. Verify these inputs, then execute the paper notebooks
+in a disposable copy:
+
 ```bash
-python run.py download.intphys2 download.splits=[Debug]
+python scripts/verify_release_inputs.py
+python scripts/reproduce_notebooks.py --output-dir output/reproduction/paper
 ```
 
-### Stage 1: `init.intphys2`
-Validates metadata, groups clips into scene quadruplets, and writes split artifacts.
-
-Main outputs in `split.dir`:
-- `split_scenes.parquet`
-- `manifest.json`
-
-### Stage 2: `extract.intphys2`
-Runs frozen backbone forward pass and writes feature cache.
-
-Main outputs mirror the MVP cache layout under `feature_cache.dir`.
-
-### Stage 3: `train.probe.intphys2`
-Trains the configured probe on binary plausibility targets (impossible=0, possible=1).
-
-Main outputs in `probe.output_dir/...`:
-- `probe_best.pt`
-- `probe_last.pt`
-- `train_summary.json`
-
-### Stage 4: `eval.probe.intphys2`
-Loads checkpoint, computes per-video P(possible) scores via softmax, and runs IntPhys2 scoring.
-
-Main outputs in `probe.eval_output_dir/...`:
-- `probe_predictions.json`
-- `probe_eval_summary.json`
-- `metrics.json` (accuracy + VOE accuracy, per-condition breakdown)
-- `predictions.csv`, `summary.md`, `provenance.json`
-
-## SSv2 Pipeline
-Something-Something v2 (SSv2) is a 174-class action recognition benchmark used as a temporal reasoning control task. Evaluation reports Top-1 and Top-5 accuracy.
-
-Requires the official SSv2 annotation files (`train.json`, `validation.json`, `labels.json`) from the [official dataset page](https://developer.qualcomm.com/software/ai-datasets/something-something). Place them at the paths configured in `configs/ssv2.yaml`.
+Use a new output directory for each run. The command preserves source notebooks
+and result files, writes executed notebooks and CSV exports, and records cell
+errors in `report.json`. Figures remain embedded in the executed notebooks;
+notebooks that already export images also write them inside the copied tree.
+To execute one analysis:
 
 ```bash
-python run.py init.ssv2
-python run.py extract.ssv2 backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py train_eval.probe.ssv2
-# or run the steps separately:
-# python run.py train.probe.ssv2
-# python run.py eval.probe.ssv2
+python scripts/reproduce_notebooks.py \
+  --output-dir output/reproduction/backbones \
+  --notebooks backbone_ablation
 ```
 
-### Stage 1: `init.ssv2`
-Validates annotation files, subsets to at most `split.max_samples_per_class` clips per class (default 200, ~29k total), and writes split artifacts.
+Successful notebook execution does not establish complete agreement with every
+paper number. Some historical seed artifacts and random-label checkpoints are
+not bundled; their availability is exposed by the existing notebook diagnostics.
+The [reproduction index](docs/reproduction.md) maps every numbered paper table
+and figure to its inputs, generating code, outputs, and remaining gaps.
+[The result inventory](results/README.md) explains which files serve each role.
 
-Main outputs in `split.dir`:
-- `split_clips.parquet`
-- `manifest.json`
+### Rerun experiments
 
-### Stage 2: `extract.ssv2`
-Runs frozen backbone forward pass and writes feature cache.
+Full reproduction requires prepared videos, pretrained models, sufficient
+CPU/GPU resources, and the appropriate per-layer configurations. Follow
+[the experiment guide](docs/experiments.md) for extraction, Optuna studies,
+fixed-config seed runs, and controls. Use the saved experiment manifests to
+recover historical settings; generic defaults and older cluster wrappers should
+not be assumed to reproduce every paper experiment. The release cleanup preserves
+existing experimental behavior and does not revise the scientific protocol.
 
-Main outputs mirror the MVP cache layout under `feature_cache.dir`.
+## Running an experiment
 
-### Stage 3: `train.probe.ssv2`
-Trains the configured 174-class probe from cached features.
+After preparing MVP videos and downloading a V-JEPA checkpoint, the following
+runs a linear probe on layer 24 of the ViT-H encoder:
 
-Main outputs in `probe.output_dir/...`:
-- `probe_best.pt`
-- `probe_last.pt`
-- `train_summary.json`
-
-### Stage 4: `eval.probe.ssv2`
-Loads checkpoint, computes per-class softmax scores (enables Top-5), and runs SSv2 scoring.
-
-Main outputs in `probe.eval_output_dir/...`:
-- `probe_predictions.json`
-- `probe_eval_summary.json`
-- `metrics.json` (top1_accuracy, top5_accuracy, per-template breakdown)
-- `predictions.csv`, `summary.md`, `provenance.json`
-
-## Experiment Recipes
-List available experiments:
 ```bash
+python run.py init.mvp
+python run.py extract.mvp \
+  backbone.name=jepa_v1 +backbone.kwargs.variant=vith16_384 \
+  +backbone.kwargs.checkpoint_path=/absolute/path/to/vith16-384.pth.tar \
+  backbone.kwargs.device=cuda
+python run.py train_eval.probe.mvp \
+  backbone.name=jepa_v1 +backbone.kwargs.variant=vith16_384 \
+  +backbone.kwargs.checkpoint_path=/absolute/path/to/vith16-384.pth.tar \
+  backbone.kwargs.device=cuda \
+  probe.name=linear probe.layer=24 probe.device=cpu
+```
+
+Use the same backbone overrides when loading the cache as during extraction.
+Splits are written below `data/splits/`; caches contain an index, feature tensors
+or chunks, and a manifest. Probe outputs include `probe_best.pt`,
+`probe_last.pt`, training summaries, predictions, and benchmark metrics under
+`artifacts/`. Output directories are configurable. Cache validation prevents
+silently combining incompatible representations. Consult the experiment guide
+before changing paths for an existing resumable extraction.
+
+## Repository structure
+
+```text
+benchmarks/   Dataset selection, grouped splits, loading, and scoring
+models/       Frozen backbone adapters and feature contracts
+probes/       Trainable readouts
+training/     Extraction and probe orchestration
+configs/      Dataset and backbone configuration
+experiments/  Recipes and readiness checks
+jobs/         Cluster extraction, training, setup, and control jobs
+scripts/      Reproduction, collection, and maintenance tools
+notebooks/    Paper analysis and plotting
+results/      Saved experimental evidence and configuration records
+docs/         Detailed instructions and provenance
+tests/        CPU tests and fixtures
+third_party/  Recorded upstream implementations
+```
+
+Historical runtime logs, drafts, and generated images are preserved in a separate
+local research archive; see [archive recovery](docs/archive.md). They are not
+requirements for regenerating analyses from the included saved results.
+
+## Validation and development
+
+```bash
+python -m unittest discover -s tests -q
+python scripts/verify_release_inputs.py
 python run.py exp.list
 ```
 
-Run a full recipe (default: extract -> train.linear -> eval.linear):
-```bash
-python run.py exp.run name=mvp.jepa_v1.probe backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py exp.run name=intphys2.jepa_v1.probe backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py exp.run name=ssv2.jepa_v1.probe backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-python run.py exp.run name=mvp.ltx_video.probe backbone.kwargs.device=cuda
-python run.py exp.run name=intphys2.ltx_video.probe backbone.kwargs.device=cuda
-python run.py exp.run name=ssv2.ltx_video.probe backbone.kwargs.device=cuda
+CPU CI runs the retained tests and checks the public command interface and layer
+configuration. `python run.py health` inspects dataset and model readiness;
+`python run.py health.features` checks existing feature caches. These checks may
+report missing external assets on a fresh checkout. See
+[development](docs/development.md) and [validation](docs/validation.md) for test
+scope and limitations. Artifact repair tools are documented separately under
+[maintenance](docs/maintenance.md).
+
+## Citation
+
+Citation metadata is also available in [CITATION.cff](CITATION.cff).
+
+```bibtex
+@inproceedings{punzo2026probe4physics,
+  title = {How Do Video Foundation Models Encode Intuitive Physics?
+           Probing Across Pretraining Paradigms},
+  author = {Punzo, Samuele and Caselli, Niccolò and Pantelidis, Ippokratis
+            and Massafra, Francesco and Lo Sardo, Salvatore
+            and Salehi, Mohammadreza},
+  booktitle = {NeurIPS 2026 Workshop on World Models in Physical AI},
+  year = {2026}
+}
 ```
 
-If a valid feature cache already exists, extraction is skipped automatically.
-Force re-extraction with:
-```bash
-python run.py exp.run name=mvp.jepa_v1.probe feature_cache.force_reextract=true backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-```
+## Acknowledgments and licensing
 
-## Command Reference
-- `python run.py init.mvp`
-- `python run.py extract.mvp`
-- `python run.py train.probe.mvp`
-- `python run.py train_eval.probe.mvp`
-- `python run.py eval.probe.mvp`
-- `python run.py eval.mvp`
-- `python run.py download.intphys2`
-- `python run.py init.intphys2`
-- `python run.py extract.intphys2`
-- `python run.py train.probe.intphys2`
-- `python run.py train_eval.probe.intphys2`
-- `python run.py eval.probe.intphys2`
-- `python run.py eval.intphys2`
-- `python run.py init.ssv2`
-- `python run.py extract.ssv2`
-- `python run.py train.probe.ssv2`
-- `python run.py train_eval.probe.ssv2`
-- `python run.py eval.probe.ssv2`
-- `python run.py eval.ssv2`
-- `python run.py exp.list`
-- `python run.py exp.run name=<experiment_id>`
-
-`eval.mvp`, `eval.intphys2`, and `eval.ssv2` are direct evaluation commands using built-in predictor modes (`oracle`, `random`, `from_file`).
-
-## Common Overrides
-Use Hydra-style overrides on any command.
-
-Examples:
-```bash
-# extract only train split for a quick smoke run
-python run.py extract.mvp feature_cache.split_names=[train] backbone.kwargs.checkpoint_path=/absolute/path/to/vitl16.pth.tar
-
-# run LTX-Video feature extraction with the default LTX checkpoint
-python run.py extract.mvp backbone.name=ltx_video backbone.kwargs.device=cuda
-
-# train with token-mean features instead of pooled
-python run.py train.probe.mvp probe.feature_view=tokens_mean
-
-# train and log probe metrics to Weights & Biases
-python run.py train.probe.mvp probe.wandb.enabled=true probe.wandb.project=probe4physics
-
-# train+eval several layers in one run
-python run.py train_eval.probe.mvp probe.layers=[8,16,24,last]
-
-# run Optuna search with per-trial W&B logging
-python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.n_trials=10 probe.wandb.enabled=true
-
-# keep probe.epochs fixed by default; opt in if you want Optuna to search epochs too
-python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.search_space.epochs.enabled=true probe.optuna.search_space.epochs.choices=[20,50,100]
-
-# override Optuna search ranges from Hydra
-python run.py train.probe.mvp probe.optuna.enabled=true probe.optuna.search_space.lr.min=1e-4 probe.optuna.search_space.lr.max=5e-3 probe.optuna.search_space.batch_size.choices=[64,128]
-
-# evaluate a specific split and checkpoint
-python run.py eval.probe.mvp split_name=val probe.checkpoint_path=/absolute/path/to/probe_best.pt
-
-# download only the Debug split of IntPhys2
-python run.py download.intphys2 download.splits=[Debug]
-
-# limit SSv2 subset size
-python run.py init.ssv2 split.max_samples_per_class=50
-```
-
-## LTX-Video Notes
-- The `ltx_video` adapter extracts deterministic diffusion features by VAE-encoding clips, injecting fixed noise at configured denoising regimes, and probing LTX transformer blocks.
-- Default Hydra variant: `ltxv_13b_0_9_8_distilled` (`Lightricks/LTX-Video-0.9.8-13B-distilled`).
-- First pull/smoke command:
-
-```bash
-python experiments/smoke_ltx_video.py --device cuda
-```
-
-- On Snellius, use:
-
-```bash
-sbatch jobs/setup/ltx_smoke.sh
-```
-
-## Main Config Keys (`configs/mvp.yaml`)
-- `split.*`: split location and ratios
-- `backbone.*`: adapter name and kwargs
-- `feature_cache.*`: cache location/content/re-extraction behavior
-- `probe.*`: probe training/eval settings, layer sweeps (`probe.layers`), and output locations
-- `probe.wandb.*`: optional Weights & Biases settings for `train.probe.*` and `train_eval.probe.*`
-- `probe.optuna.search_space.*`: Optuna ranges/choices; `epochs` search is disabled by default
-- `decode.*`: frame sampling/resizing settings
-- `predictor.*`: predictor mode for `eval.mvp`
-
-## Main Config Keys (`configs/intphys2.yaml`)
-- `download.*`: HuggingFace repo, splits to download, local storage directory
-- `split.*`: split artifact location
-- `backbone.*`: adapter name and kwargs
-- `feature_cache.*`: cache location/content/re-extraction behavior
-- `probe.*`: probe training/eval settings, layer sweeps (`probe.layers`), and output locations
-- `probe.optuna.search_space.*`: Optuna ranges/choices; `epochs` search is disabled by default
-- `decode.*`: frame sampling/resizing settings
-- `predictor.*`: predictor mode for `eval.intphys2`
-
-## Main Config Keys (`configs/ssv2.yaml`)
-- `split.*`: split artifact location and `max_samples_per_class` subsetting
-- `backbone.*`: adapter name and kwargs
-- `feature_cache.*`: cache location/content/re-extraction behavior
-- `probe.*`: probe training/eval settings, layer sweeps (`probe.layers`), and output locations
-- `probe.optuna.search_space.*`: Optuna ranges/choices; `epochs` search is disabled by default
-- `decode.*`: frame sampling/resizing settings
-- `predictor.*`: predictor mode for `eval.ssv2`
+This work builds on MVP, IntPhys2, V-JEPA, VideoMAE, and LTX-Video. Their datasets,
+weights, and upstream code retain their respective licenses and access conditions;
+see [third-party attribution](docs/third_party.md). A license for this project's
+own code has not yet been selected. Citation metadata does not grant a license
+to use or redistribute any asset.
