@@ -4,7 +4,7 @@ defaults:
 
 annotation_file: data/annotations/mvp_full.jsonl
 official_repo_root: third_party/minimal_video_pairs
-videos_root: /scratch-shared/spunzo1/probe4physics/data/videos/mvp
+videos_root: ${oc.env:P4P_MVP_VIDEOS_ROOT,data/videos/mvp}
 cache_dir: data/cache/videos
 
 seed: 42
@@ -98,7 +98,7 @@ backbone:
     device: cpu
 
 feature_cache:
-  dir: /scratch-shared/spunzo1/probe4physics/artifacts/features/mvp
+  dir: ${oc.env:P4P_MVP_FEATURE_DIR,artifacts/features/mvp}
   # Feature tensors contain all requested splits together; index.parquet stores
   # the split for each row, and training/eval filter by that column.
   split_names:

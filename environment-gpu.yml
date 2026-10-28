@@ -26,6 +26,12 @@ dependencies:
   - einops>=0.8
   - optuna>=3.6
   - wandb>=0.16
+  - scipy>=1.11
+  - openpyxl>=3.1
+  - jupyterlab>=4
+  - nbclient>=0.10
+  - nbconvert>=7
+  - ipykernel>=6
   - pip:
       - --index-url https://download.pytorch.org/whl/cu124
       - torch==2.6.0

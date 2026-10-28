@@ -309,7 +309,6 @@ DATASET_SPECS = {
 }
 
 
-
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Probe4Physics probe runner")
     parser.add_argument("mode", choices=("train", "eval", "train_eval"))
@@ -375,18 +374,12 @@ def run_intphys2_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_eval("intphys2", config)
 
 
-
-
-
-
 def run_mvp_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_train_eval("mvp", config)
 
 
 def run_intphys2_train_eval_probe(config: dict[str, Any]) -> dict[str, Any]:
     return run_probe_train_eval("intphys2", config)
-
-
 
 
 def run_intphys2_displacement_train_probe(config: dict[str, Any]) -> dict[str, Any]:
@@ -1710,7 +1703,6 @@ def _write_train_eval_summary_csv(path: Path, summary: dict[str, Any]) -> None:
             writer.writerow(row)
 
 
-
 def _build_optuna_pruner(optuna: Any, probe_cfg: dict[str, Any]) -> Any:
     pruner_cfg = probe_cfg["optuna"].get("pruner", {})
     if not bool(pruner_cfg.get("enabled", True)):
@@ -2632,7 +2624,6 @@ def _resolve_train_output_dir(
     return root / f"{spec.train_prefix}_{probe_cfg['name']}_{_backbone_run_label(config)}_{timestamp}"
 
 
-
 def _resolve_eval_output_dir(
     dataset: str,
     config: dict[str, Any],
@@ -2912,7 +2903,6 @@ def _backbone_run_label(config: dict[str, Any]) -> str:
     metadata = resolve_backbone_cache_metadata(name, kwargs)
     variant = str(metadata.get("variant") or kwargs.get("variant", "")).strip()
     return f"{name}_{variant}" if variant else name
-
 
 
 def _resolve_objective_metric_name(dataset: str, probe_cfg: dict[str, Any]) -> str:

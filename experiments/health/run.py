@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import yaml
+from omegaconf import OmegaConf
 
 from benchmarks.intphys2.data import load_intphys2_rows, normalize_intphys2_row
 from benchmarks.mvp.data import load_mvp_rows
@@ -1633,8 +1633,6 @@ def _check_intphys2(config: dict[str, Any]) -> dict[str, Any]:
     return _bundle("dataset", "intphys2", None, checks, stats=stats)
 
 
-
-
 def _video_exists(video_ref: str, videos_root: Path) -> tuple[bool, str]:
     ref = str(video_ref or "").strip()
     if not ref:
@@ -1685,7 +1683,7 @@ def _bundle(
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
-    payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    payload = OmegaConf.to_container(OmegaConf.load(path), resolve=True) or {}
     if not isinstance(payload, dict):
         raise ValueError(f"Expected YAML dict in {path}, got {type(payload)!r}")
     return payload
