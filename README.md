@@ -1,17 +1,50 @@
-# Probe4Physics
+<h1 align="center">
+  How Do Video Foundation Models Encode Intuitive Physics?<br>
+  Probing Across Pretraining Paradigms
+</h1>
 
-Official code accompanying **How Do Video Foundation Models Encode Intuitive
-Physics? Probing Across Pretraining Paradigms**.
+<h3 align="center">NeurIPS 2026 Workshop on World Models in Physical AI</h3>
 
-Samuele Punzo, Niccolò Caselli, Ippokratis Pantelidis, Francesco Massafra,
-Salvatore Lo Sardo, and Mohammadreza Salehi · University of Amsterdam
+<p align="center">
+  <a href="https://scholar.google.com/citations?user=uBrcokoAAAAJ">Samuele Punzo</a><sup>*</sup>,
+  <a href="https://scholar.google.com/citations?user=zAzUbX0AAAAJ">Niccolò Caselli</a><sup>*</sup>,
+  <a href="https://openreview.net/profile?id=~Ippokratis_Pantelidis2">Ippokratis Pantelidis</a><sup>*</sup>,<br>
+  <a href="https://scholar.google.com/citations?user=Mijp4OoAAAAJ">Francesco Massafra</a><sup>*</sup>,
+  <a href="https://scholar.google.com/citations?user=TzWJ0VQAAAAJ">Salvatore Lo Sardo</a><sup>*</sup>,
+  <a href="https://scholar.google.com/citations?user=kpT3gcsAAAAJ">Mohammadreza Salehi</a><sup>†</sup>
+</p>
 
-**NeurIPS 2026 Workshop on World Models in Physical AI** · Publication date:
-June 8, 2026
+<p align="center">
+  University of Amsterdam<br>
+  <sub><sup>*</sup> Equal contribution &nbsp; <sup>†</sup> Supervisor</sub>
+</p>
+
+<p align="center">
+  <a href="docs/reproduction.md"><img src="https://img.shields.io/badge/Reproduce_Results-2e8b57?style=flat-square" alt="Reproduce results"></a>
+  <a href="CITATION.cff"><img src="https://img.shields.io/badge/Citation-7b2cbf?style=flat-square" alt="Citation"></a>
+  <a href="environment.yml"><img src="https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python 3.11"></a>
+  <a href="environment-gpu.yml"><img src="https://img.shields.io/badge/PyTorch-2.6-ee4c2c?style=flat-square&logo=pytorch&logoColor=white" alt="PyTorch 2.6"></a>
+</p>
+
+<p align="center">
+  <b>Probe4Physics</b> · Official code and saved results for the paper.<br>
+  <sub>Published June 8, 2026</sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/mvp-probing-setup.png" alt="MVP adaptation from text-conditioned VideoQA to frozen-feature probing with binary physical-plausibility labels" width="1000">
+</p>
+
+<p align="center">
+  <em>Adapting MVP to video-only physical-plausibility probing (Figure 5).</em><br>
+  <sub>Video frames adapted from MVP (Krojer et al., 2025).</sub>
+</p>
+
+---
 
 ## Overview
 
-Probe4Physics studies the accessibility of physical-plausibility information in
+This work studies the accessibility of physical-plausibility information in
 frozen video foundation model representations. It provides a shared pipeline for
 dataset preparation, feature extraction, probe training, and evaluation across
 predictive joint-embedding, masked-reconstruction, and video-diffusion models.
@@ -19,13 +52,13 @@ Separate probes operate on intermediate representations, allowing comparisons
 across network depth, backbone variants, and readout capacity without updating
 the pretrained backbone.
 
-| Component | Supported scope |
-| --- | --- |
-| Benchmarks | Minimal Video Pairs (MVP), IntPhys2 |
-| Backbones | V-JEPA, V-JEPA 2, V-JEPA 2.1, VideoMAE, VideoMAE-v2, LTX-Video |
-| Probes | Linear, MLP, temporal attentive |
+| Component       | Supported scope                                                        |
+| --------------- | ---------------------------------------------------------------------- |
+| Benchmarks      | Minimal Video Pairs (MVP), IntPhys2                                    |
+| Backbones       | V-JEPA, V-JEPA 2, V-JEPA 2.1, VideoMAE, VideoMAE-v2, LTX-Video         |
+| Probes          | Linear, MLP, temporal attentive                                        |
 | Primary metrics | MVP pair consistency; IntPhys2 violation-of-expectation (VOE) accuracy |
-| Controls | Temporal displacement, repeated single frame, structured random labels |
+| Controls        | Temporal displacement, repeated single frame, structured random labels |
 
 MVP is adapted to a video-only binary plausibility task. IntPhys2 uses supervised
 scene-level train/validation/test partitions. Scores therefore belong to this
@@ -59,8 +92,7 @@ Choose an environment compatible with the execution host. GPU feature extraction
 and token-level attentive training require substantially more memory than pooled
 linear or MLP probing. The environment definitions are dependency specifications,
 not exact historical locks. See [validation](docs/validation.md) for the versions
-actually checked during release preparation and [cluster instructions](docs/cluster.md)
-for the existing Snellius wrappers.
+actually checked during release preparation.
 
 ## Data and checkpoints
 
@@ -83,8 +115,8 @@ in [data preparation](docs/data.md).
 
 Backbone variants, input sizes, local checkpoint filenames, and Hugging Face
 identifiers are defined in [configs/backbones.yaml](configs/backbones.yaml).
-JEPA checkpoints must be obtained from their upstream releases or the existing
-checkpoint setup jobs. VideoMAE and LTX adapters resolve the configured remote
+JEPA checkpoints must be obtained from their upstream releases; the expected
+variants and filenames are listed in the backbone configuration. VideoMAE and LTX adapters resolve the configured remote
 models when extraction is run. Initial model access requires network availability
 and compliance with each model's terms. Explicit checkpoints can be supplied
 with `+backbone.kwargs.checkpoint_path=/absolute/path` where supported.
@@ -130,9 +162,9 @@ Full reproduction requires prepared videos, pretrained models, sufficient
 CPU/GPU resources, and the appropriate per-layer configurations. Follow
 [the experiment guide](docs/experiments.md) for extraction, Optuna studies,
 fixed-config seed runs, and controls. Use the saved experiment manifests to
-recover historical settings; generic defaults and older cluster wrappers should
-not be assumed to reproduce every paper experiment. The release cleanup preserves
-existing experimental behavior and does not revise the scientific protocol.
+recover historical settings; generic defaults alone do not specify every paper
+experiment. Keep the recorded seeds, splits, preprocessing, and selected
+configurations when comparing regenerated measurements with the saved results.
 
 ## Running an experiment
 
@@ -169,8 +201,7 @@ probes/       Trainable readouts
 training/     Extraction and probe orchestration
 configs/      Dataset and backbone configuration
 experiments/  Recipes and readiness checks
-jobs/         Cluster extraction, training, setup, and control jobs
-scripts/      Reproduction, collection, and maintenance tools
+scripts/      Reproduction and result collection tools
 notebooks/    Paper analysis and plotting
 results/      Saved experimental evidence and configuration records
 docs/         Detailed instructions and provenance
@@ -178,9 +209,10 @@ tests/        CPU tests and fixtures
 third_party/  Recorded upstream implementations
 ```
 
-Historical runtime logs, drafts, and generated images are preserved in a separate
-local research archive; see [archive recovery](docs/archive.md). They are not
-requirements for regenerating analyses from the included saved results.
+Generated feature caches, checkpoints, executed notebooks, figures, and logs
+belong in ignored `artifacts/`, `output/`, or `logs/` directories. The structure
+above lists the shared paper workflow; development branches may also contain
+additional research and cluster utilities.
 
 ## Validation and development
 
@@ -195,8 +227,7 @@ configuration. `python run.py health` inspects dataset and model readiness;
 `python run.py health.features` checks existing feature caches. These checks may
 report missing external assets on a fresh checkout. See
 [development](docs/development.md) and [validation](docs/validation.md) for test
-scope and limitations. Artifact repair tools are documented separately under
-[maintenance](docs/maintenance.md).
+scope and limitations.
 
 ## Citation
 
@@ -216,8 +247,7 @@ Citation metadata is also available in [CITATION.cff](CITATION.cff).
 
 ## Acknowledgments and licensing
 
-This work builds on MVP, IntPhys2, V-JEPA, VideoMAE, and LTX-Video. Their datasets,
-weights, and upstream code retain their respective licenses and access conditions;
-see [third-party attribution](docs/third_party.md). A license for this project's
-own code has not yet been selected. Citation metadata does not grant a license
-to use or redistribute any asset.
+This work uses MVP, IntPhys2, V-JEPA, VideoMAE, and LTX-Video. Dataset, model,
+and upstream code attribution is recorded in [third-party documentation](docs/third_party.md).
+These assets retain their respective licenses and access conditions. A license
+for this project’s own code has not yet been selected.

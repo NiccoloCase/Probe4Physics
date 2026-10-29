@@ -52,7 +52,7 @@ python -c 'import pandas as pd; print(pd.read_csv("results/random_label_controls
 | Figure 2: backbone-scale bars | Primary workbooks, backbone-sweep summaries | `--notebooks backbone_ablation` | Best-backbone bar variants in executed notebook; `tables/backbone_ablation/backbone_best.csv`. |
 | Figure 3: matched-family comparison | Same-L workbooks/summaries, LTX references | `--notebooks large_ablation` | Saved `snapshot/notebooks/large_ablation*.png`, embedded figures, `best_large.csv`, and `pairwise_significance.csv`. Four selected LTX comparison rows have incomplete seed coverage. |
 | Figure 4: IntPhys2 illustrations | Source dataset/paper imagery | No editable generator in this repository | Illustrative artwork; source layout/assets are not bundled. |
-| Figure 5: MVP adaptation illustration | Source MVP imagery and diagram artwork | No editable generator in this repository | Illustrative artwork; source layout/assets are not bundled. |
+| Figure 5: MVP adaptation illustration | Source MVP imagery and diagram artwork | Extracted from the paper for the README | `docs/assets/mvp-probing-setup.png`; editable source layout is not bundled. |
 | Figure 6: all-probe layer profiles | Same inputs as Figure 1 | `--notebooks main` | All-probe appendix plot in executed notebook. |
 | Figure 7: LTX linear block/noise grid | LTX entries in primary workbooks and seed summaries | `--notebooks main` | Linear heatmaps in executed notebook; underlying rows in `results.csv`. |
 | Figure 8: LTX MLP block/noise grid | Same LTX measurement inputs | `--notebooks main` | MLP heatmaps in executed notebook; underlying rows in `results.csv`. |

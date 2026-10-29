@@ -93,3 +93,19 @@ python scripts/reproduce_notebooks.py --output-dir output/reproduction/check
 Choose a new notebook output directory. Full execution reports and test logs
 are local validation artifacts under `output/validation/` and the separate
 research archive; concise outcomes are recorded here for the public repository.
+
+## Development snapshot verification — October 29, 2026
+
+Before establishing `dev`, the retained CPU suite was rerun: 277 tests passed.
+Input verification confirmed all 127 baseline paper files unchanged. CLI help,
+recipe listing, configured layer health, and local Markdown file links passed.
+The checks used the existing Python 3.13 validation environment recorded above;
+no dependency definitions or scientific code changed. Notebooks and GPU workloads
+were not rerun for these documentation-only edits. Logs are under ignored
+`output/validation/dev-*` paths.
+
+The shared README describes the portable paper workflow and is intended to remain
+identical on `dev` and the public release branch. HPC jobs and maintenance tools
+remain available in the development snapshot. Archive recovery instructions and
+the archive inventory are preserved beside the separate research archive rather
+than in the repository documentation.

@@ -46,5 +46,7 @@ mirror the implementation. Keep upstream submodule commits stable.
 
 Use separate commits for independent cleanup steps and state how each was
 validated. Project licensing remains a coauthor decision. See
-[validation.md](validation.md) for this release's recorded checks and
-[archive.md](archive.md) for the original research state.
+[validation.md](validation.md) for this release's recorded checks. The original
+research snapshot is preserved at commit `bbbb6028c0fe984f3ceb9251c50c46443bec9c64`;
+historical files and recovery records are retained in the separate local research
+archive.
