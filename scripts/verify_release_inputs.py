@@ -1,4 +1,4 @@
-"""Verify that versioned paper results and notebook sources match the research baseline."""
+"""Verify that retained experiment inputs match the research baseline."""
 from __future__ import annotations
 import hashlib
 import json
@@ -15,7 +15,7 @@ def main() -> None:
             problems.append(item['path'])
     if problems:
         raise SystemExit('Baseline input mismatch: ' + ', '.join(problems))
-    print(f"Verified {len(manifest['files'])} unchanged paper input files against {manifest['baseline_commit'][:7]}.")
+    print(f"Verified {len(manifest['files'])} unchanged experiment input files against {manifest['baseline_commit'][:7]}.")
 
 
 if __name__ == '__main__':

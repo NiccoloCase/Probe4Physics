@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <b>Probe4Physics</b> · Official code and saved results for the paper.<br>
+  <b>Probe4Physics</b> · Official implementation accompanying the paper.<br>
   <sub>Published June 8, 2026</sub>
 </p>
 
@@ -126,45 +126,48 @@ are not bundled in this checkout.
 
 ## Reproducing the paper
 
-### Regenerate analyses from saved results
+Reproduction starts from the datasets and pretrained checkpoints, rather than
+bundled measurement workbooks. Prepare the videos, extract frozen features, and
+run hyperparameter searches or fixed-configuration probes using the Python CLI.
+The [experiment guide](docs/experiments.md) covers extraction, Optuna searches,
+fixed-config seed runs, controls, and collection of newly generated metrics.
 
-The versioned `results/` directory contains measurement workbooks, configuration
-records, and seed summaries. Verify these inputs, then execute the paper notebooks
-in a disposable copy:
+The public `results/` directory contains selected configuration records and run
+manifests, together with the source CSV rows required to validate their hashes.
+These are execution inputs, not a distribution of the paper's measurement tables.
+See [the configuration inventory](results/README.md) for their roles and limits.
+Verify these inputs before running a historical configuration:
 
 ```bash
 python scripts/verify_release_inputs.py
-python scripts/reproduce_notebooks.py --output-dir output/reproduction/paper
+python scripts/run_seed_manifest_row.py \
+  --manifest results/seed_runs/seed_manifest_layerwise_main_linear_mlp_v1.csv \
+  --probe linear --task-index 0 --dry-run
 ```
 
-Use a new output directory for each run. The command preserves source notebooks
-and result files, writes executed notebooks and CSV exports, and records cell
-errors in `report.json`. Figures remain embedded in the executed notebooks;
-notebooks that already export images also write them inside the copied tree.
-To execute one analysis:
+Supply local cache, checkpoint, and output paths before executing the selected
+row. Keep the recorded seeds, splits, preprocessing, and selected settings when
+comparing new measurements with the paper. Generic defaults alone do not specify
+the complete experiment matrix, and not every historical run has complete source
+artifacts. Full reruns require sufficient CPU/GPU resources and external assets.
+The [reproduction guide](docs/reproduction.md) describes the supported workflow,
+generated outputs, and remaining limits.
+
+Historical measurement workbooks and performance-analysis notebooks are retained
+on the development branch. They are not required to execute the training and
+evaluation pipeline and are not bundled with the public release. The included
+parameter-count notebook operates on model configuration without those workbooks:
 
 ```bash
 python scripts/reproduce_notebooks.py \
-  --output-dir output/reproduction/backbones \
-  --notebooks backbone_ablation
+  --output-dir output/reproduction/parameters \
+  --notebooks parameter_counts
 ```
 
-Successful notebook execution does not establish complete agreement with every
-paper number. Some historical seed artifacts and random-label checkpoints are
-not bundled; their availability is exposed by the existing notebook diagnostics.
-The [reproduction index](docs/reproduction.md) maps every numbered paper table
-and figure to its inputs, generating code, outputs, and remaining gaps.
-[The result inventory](results/README.md) explains which files serve each role.
-
-### Rerun experiments
-
-Full reproduction requires prepared videos, pretrained models, sufficient
-CPU/GPU resources, and the appropriate per-layer configurations. Follow
-[the experiment guide](docs/experiments.md) for extraction, Optuna studies,
-fixed-config seed runs, and controls. Use the saved experiment manifests to
-recover historical settings; generic defaults alone do not specify every paper
-experiment. Keep the recorded seeds, splits, preprocessing, and selected
-configurations when comparing regenerated measurements with the saved results.
+This writes an executed notebook, exported metadata tables, and an execution
+report into a fresh output directory while preserving its source. It does not
+regenerate the paper's performance figures. New evaluation measurements are
+written by the training/evaluation commands and can be collected independently.
 
 ## Running an experiment
 
@@ -202,8 +205,8 @@ training/     Extraction and probe orchestration
 configs/      Dataset and backbone configuration
 experiments/  Recipes and readiness checks
 scripts/      Reproduction and result collection tools
-notebooks/    Paper analysis and plotting
-results/      Saved experimental evidence and configuration records
+notebooks/    Model metadata inspection
+results/      Experiment configurations and required run manifests
 docs/         Detailed instructions and provenance
 tests/        CPU tests and fixtures
 third_party/  Recorded upstream implementations
