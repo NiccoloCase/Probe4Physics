@@ -91,7 +91,7 @@ conda activate probe4physics-gpu
 Choose an environment compatible with the execution host. GPU feature extraction
 and token-level attentive training require substantially more memory than pooled
 linear or MLP probing. The environment definitions are dependency specifications,
-not exact historical locks. See [validation](docs/validation.md) for the versions
+not exact historical locks. See [the validation environment record](docs/validation-environment.json) for the versions
 actually checked during release preparation.
 
 ## Data and checkpoints
@@ -225,9 +225,9 @@ python run.py exp.list
 CPU CI runs the retained tests and checks the public command interface and layer
 configuration. `python run.py health` inspects dataset and model readiness;
 `python run.py health.features` checks existing feature caches. These checks may
-report missing external assets on a fresh checkout. See
-[development](docs/development.md) and [validation](docs/validation.md) for test
-scope and limitations.
+report missing external assets on a fresh checkout. Tests use CPU fixtures and
+mocked backbones; they do not validate full GPU extraction or training. See the
+[reproduction index](docs/reproduction.md) for artifact availability and limits.
 
 ## Citation
 

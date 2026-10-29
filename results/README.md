@@ -48,5 +48,4 @@ Notebook execution can succeed while reporting incomplete evidence. In the
 release baseline, selected main-table LTX attentive rows lack complete seed
 coverage, and random-label checkpoint discovery cannot regenerate Table 7
 without external checkpoints. The saved Table 7 comparison CSV remains included.
-See [reproduction](../docs/reproduction.md) and
-[validation](../docs/validation.md) for these limits.
+See [reproduction](../docs/reproduction.md) for these limits.

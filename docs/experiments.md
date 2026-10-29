@@ -91,8 +91,7 @@ python run.py eval.probe.mvp.single_frame probe.checkpoint_path=/absolute/path/t
 Supply the same backbone/layer overrides used for the original probe. These
 commands extract only test clips. Displacement is a deterministic non-zero
 circular shift within the sampled 16 frames. Single-frame control chooses one
-sample-dependent frame and repeats it. The historical `frame_shuffling` job
-folder calls the displacement implementation; that naming is preserved.
+sample-dependent frame and repeats it.
 
 Structured random labels use
 `probe.label_control.mode=structured_random` and `probe.label_control.seed=42`
@@ -112,5 +111,4 @@ Caches contain `index.parquet`, a manifest, pooled tensors, and token tensors
 or resumable chunks. Training saves best/last checkpoints and summaries;
 evaluation saves predictions, benchmark metrics, and provenance. Configurable
 output roots prevent new runs overwriting saved results. See
-[reproduction.md](reproduction.md) for the mapping to paper outputs and
-[maintenance.md](maintenance.md) for historical repair tools.
+[reproduction.md](reproduction.md) for the mapping to paper outputs.

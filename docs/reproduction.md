@@ -60,15 +60,13 @@ python -c 'import pandas as pd; print(pd.read_csv("results/random_label_controls
 | Figure 10: temporal-control attentive scores | Same inputs as Table 6 | `--notebooks temporal_controls_table` | Absolute attentive-control plot in executed notebook; `absolute_table.csv` and `temporal_paper_table.csv`. |
 
 `main_accuracy` preserves secondary clip-accuracy plots.
-`seed_traceability_status` exports the availability audit; it is not a numbered
-paper figure. All existing plot code, layer selection, statistics, and seed
+All existing plot code, layer selection, statistics, and seed
 policies are unchanged. Plot variants may need editorial selection to match a
 particular paper layout; the runner does not invent unavailable figure sources.
 
 ## Full experimental reruns
 
-Follow [data preparation](data.md), [experiments](experiments.md), and
-[cluster submission](cluster.md). The saved configuration records and seed
+Follow [data preparation](data.md) and [experiments](experiments.md). The saved configuration records and seed
 manifests specify historical experiments; a single generic CLI invocation does
 not replace the complete run matrix. The same checkpoints and resolved
 extraction settings must be used when training from a feature cache.
@@ -80,8 +78,9 @@ than being reconstructed from rounded paper numbers.
 
 ## What was verified
 
-Eight notebooks execute on the included saved inputs. Sixty DataFrame CSV
-exports match the pre-cleanup baseline after normalizing disposable snapshot
-paths. Notebook execution is distinct from complete seed/checkpoint provenance:
-coverage warnings and missing random-label artifacts remain visible. See
-[validation.md](validation.md) for the environment and detailed limits.
+The seven paper-analysis notebooks are included in the reproduction command.
+During initial validation, their DataFrame exports matched the pre-cleanup
+baseline after normalizing disposable snapshot paths. Notebook execution is
+distinct from complete seed/checkpoint provenance: coverage warnings and missing
+random-label artifacts remain visible. The environment used for validation is
+recorded in [validation-environment.json](validation-environment.json).

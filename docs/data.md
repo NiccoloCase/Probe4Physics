@@ -58,8 +58,7 @@ python run.py extract.mvp feature_cache.dir=/absolute/path/to/features
 The latter illustrates storage selection; extraction also requires valid videos,
 splits, and a backbone. Readiness checks read dataset YAML defaults; use the
 same environment variables for `health` and `health.features` when inspecting
-non-default assets. Cluster wrappers additionally expose their own storage
-variables; see [cluster.md](cluster.md).
+non-default assets.
 
 ### Existing caches and resumable extractions
 
@@ -83,9 +82,8 @@ export P4P_INTPHYS2_FEATURE_DIR=/scratch-shared/spunzo1/probe4physics/artifacts/
 
 `configs/backbones.yaml` records exact adapter variants and expected filenames.
 JEPA weights normally live below `data/checkpoints/jepa_v1`, `jepa_v2`, and
-`jepa_v2_1`. Existing download jobs are
-`jobs/init/backbones/checkpoints_init.sh`, `checkpoints_same_l_init.sh`, and
-`checkpoints_jepa_v2_1_sweep_init.sh`. Review their requirements before submitting.
+`jepa_v2_1`. Obtain the configured JEPA variants from the upstream releases
+listed in `third_party/jepa_v1/README.md` and `third_party/vjepa2/README.md`.
 VideoMAE/LTX use the Hugging Face identifiers in the configuration.
 
 Use `python run.py health` to inspect missing assets. This checks readiness;

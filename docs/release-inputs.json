@@ -37,11 +37,6 @@
       "sha256": "92e4d59ae3d46be002c2a60d9e9a57157c9098cbd0c49950532d3db64ba0d338"
     },
     {
-      "path": "notebooks/seed_traceability_status.ipynb",
-      "size": 4986,
-      "sha256": "435fa3efc037695de346cd2036c14367a8c629d3901abace39f7403efb2b6494"
-    },
-    {
       "path": "notebooks/seed_variance_loader.py",
       "size": 33916,
       "sha256": "8799ef6d88c8b703fa499cc260cf7f32999c3e788c29750f13bfe9d283ac26d8"
@@ -592,24 +587,9 @@
       "sha256": "441ee15f1db09377f28c2e77b4e82be352e9aa8a35ed5003e072d5cc57f241c5"
     },
     {
-      "path": "results/seed_runs/seed_status_report.md",
-      "size": 21509,
-      "sha256": "a8d48dac47c2643dab473e1d230f0e3a5ef5bba9c8f3f670bc678512a04d8f97"
-    },
-    {
       "path": "results/seed_runs/seed_summary.csv",
       "size": 9460,
       "sha256": "6209825b78fbedc62626c83228cb4b80a973569058e4ce8903fb8bce52fb0360"
-    },
-    {
-      "path": "results/seed_runs/seed_traceability_problems.csv",
-      "size": 1081,
-      "sha256": "140f9efdb556f09f68d4f5547a55dd932263831ab0c520b9fbbf2fabef456d97"
-    },
-    {
-      "path": "results/seed_runs/seed_traceability_status.csv",
-      "size": 154335,
-      "sha256": "fce5ca4aea48583ecb7b609fee8a4c51d606afb70a0970e43f88bbfd121e366d"
     },
     {
       "path": "results/temporal_controls_main_vs_seed42.csv",

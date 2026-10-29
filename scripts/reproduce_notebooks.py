@@ -7,8 +7,7 @@ import shutil
 import sys
 
 DEFAULT_NOTEBOOKS = ('main', 'main_accuracy', 'large_ablation', 'backbone_ablation',
-                     'temporal_controls_table', 'random_label_controls_table', 'parameter_counts',
-                     'seed_traceability_status')
+                     'temporal_controls_table', 'random_label_controls_table', 'parameter_counts')
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
