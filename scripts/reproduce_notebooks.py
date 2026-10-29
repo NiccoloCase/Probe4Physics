@@ -1,4 +1,4 @@
-"""Execute unchanged paper notebooks in a disposable snapshot of their inputs."""
+"""Execute supported metadata notebooks in a disposable snapshot of their inputs."""
 from __future__ import annotations
 import argparse
 import json
@@ -6,8 +6,7 @@ from pathlib import Path
 import shutil
 import sys
 
-DEFAULT_NOTEBOOKS = ('main', 'main_accuracy', 'large_ablation', 'backbone_ablation',
-                     'temporal_controls_table', 'random_label_controls_table', 'parameter_counts')
+DEFAULT_NOTEBOOKS = ('parameter_counts',)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)

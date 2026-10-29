@@ -65,17 +65,24 @@ cluster paths may need explicit final Hydra overrides; do not rewrite source
 CSV records merely to bypass their hashes.
 
 To collect run outputs, select the corresponding source/manifest and write new
-exports below `output/`, rather than overwriting the checked-in evidence:
+exports below `output/`. Exclude historical source-seed measurements when
+collecting only the newly executed manifest rows:
 
 ```bash
 python scripts/collect_seed_results.py \
   --manifest results/seed_runs/seed_manifest_layerwise_main_linear_mlp_v1.csv \
+  --no-source-seed --expected-seeds 101,102 \
   --long-output output/collection/seed_results_long.csv \
   --summary-output output/collection/seed_summary.csv
 ```
 
-Collection requires the run artifacts referenced by the manifest. Missing runs
-must remain visible as missing; they must not be replaced with duplicate seeds.
+Collection requires the new run artifacts referenced by the manifest. The example
+aggregates seeds 101 and 102; it does not import the historical seed-42 scores
+from the source configuration CSV. Retrain seed 42 separately when reproducing
+the full three-seed protocol, and include that new run in your collection inputs.
+Missing runs must remain visible as missing; do not replace them with duplicate
+seeds. Standalone paper measurements and workbook-based plotting analyses are
+not part of the public release.
 
 ## Temporal and random-label controls
 

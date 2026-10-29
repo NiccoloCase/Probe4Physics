@@ -1,51 +1,47 @@
-# Saved experimental results
+# Experiment configuration records
 
-This directory contains versioned inputs to paper analysis, not newly generated
-runtime output. All existing CSV/XLSX files are preserved byte-for-byte from
-research commit `bbbb602`. Verify them with:
+The public release keeps this directory for selected configurations and run
+instructions. Measurement workbooks, aggregated paper scores, historical backups,
+and performance-analysis exports are retained on the development branch.
+
+## Retained inputs
+
+| Files | Purpose |
+| --- | --- |
+| `verified_best_probe_configs.csv` | Recovered selected configurations used by the default seed manifest |
+| `verified_layerwise_probe_configs.csv` | Per-layer settings used by layerwise, backbone-scale, and matched-family runs |
+| `seed_runs/seed_manifest*.csv` | Fixed-configuration rerun instructions, seeds, overrides, and source-row hashes |
+| `seed_runs/jepa_v2_mlp_layerwise_seed_source_v1.csv` | Configuration source required by the JEPA v2 MLP manifest |
+| `seed_runs/attentive_continuation_manifest_v1.csv` | Historical attentive-resume instructions and source-manifest references |
+
+These files remain byte-for-byte unchanged from the research baseline. Source
+configuration rows include historical metric and provenance fields because the
+manifest validators hash entire rows. Those fields are retained to preserve
+validation and configuration selection; they are not newly generated results.
+Do not strip columns or rewrite paths in these checked-in records.
 
 ```bash
 python scripts/verify_release_inputs.py
 ```
 
-## Input roles
+## Running and collecting new experiments
 
-| Files | Role |
-| --- | --- |
-| `mvp_primary_db.xlsx`, `intphys_primary_db.xlsx` | Original per-model/per-layer measurement workbooks |
-| `visualization_ready_results.xlsx` | Historical visualization export, retained for compatibility |
-| `verified_layerwise_probe_configs.csv` | Recovered configurations and seed-42 metrics across layers |
-| `verified_best_probe_configs.csv` | Historical selected configurations and evidence references |
-| `controls_db.xlsx` | Temporal-control measurements |
-| `temporal_controls_main_vs_seed42.csv` | Saved derived temporal-control table |
-| `random_label_controls_main_vs_seed42.csv` | Saved main/random-label comparison used for paper Table 7 |
-| `random_label_controls_table.csv` | Older random-label run summary; distinct from the final comparison |
-| `seed_runs/*summary*.csv`, associated long CSVs | Seed aggregation and coverage records |
-| `seed_runs/seed_manifest*.csv` | Fixed-config run instructions and source hashes |
-| `seed_runs/*continuation*`, `*audit*` | Attentive continuation policy and execution evidence |
-| `imports/` | Imported external-run evidence and audit notes |
+Use `scripts/run_seed_manifest_row.py` to preview or execute a row, supplying
+local execution paths as final Hydra overrides. See
+[experiments](../docs/experiments.md) for a complete command example. Write new
+metrics and collection exports below ignored `artifacts/` or `output/` paths.
+When collecting newly executed manifest rows, use `--no-source-seed` to avoid
+mixing new measurements with historical source-row scores. Set `--expected-seeds`
+to the seeds actually being collected; full paper comparisons require the
+recorded three-seed protocol, including a newly executed seed 42.
 
-The notebooks combine source workbooks with ready seed summaries through
-`notebooks/seed_variance_loader.py`. That loader has an explicit precedence
-between original summaries, attentive continuations, and ready manifests.
-A workbook alone is therefore not the complete source of the final analysis.
-Do not replace a missing seed by duplicating another seed or merge files solely
-because their names appear similar.
+Historical paths do not mean the referenced files are bundled. In particular,
+attentive continuation validation requires the original source checkpoint and
+training summary before execution overrides are applied. Without those assets,
+that historical resume path is unavailable; a fresh training run is a distinct
+execution and must not be presented as a validated continuation.
 
-Some provenance fields reference cluster artifacts or historical log paths.
-Those strings are preserved, including hashes used by manifest validation.
-Historical logs remain recoverable in the separate archive. Raw videos, feature
-caches, trained checkpoints, and many per-run JSON outputs are not bundled.
-
-## Generating new outputs
-
-Use a fresh `output/reproduction/<run>` directory through the notebook runner.
-It copies this directory before executing notebooks that write CSVs, ensuring
-the original evidence remains unchanged. Its `tables/` exports expose loaded
-DataFrames, selected layers, statistics, and coverage issues for comparison.
-
-Notebook execution can succeed while reporting incomplete evidence. In the
-release baseline, selected main-table LTX attentive rows lack complete seed
-coverage, and random-label checkpoint discovery cannot regenerate Table 7
-without external checkpoints. The saved Table 7 comparison CSV remains included.
-See [reproduction](../docs/reproduction.md) for these limits.
+Raw videos, pretrained weights, feature caches, trained probes, and original
+per-run outputs are external. The public release does not regenerate paper
+plots from included measurements. See [reproduction](../docs/reproduction.md)
+for the workflow and availability limits.
